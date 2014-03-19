@@ -38,8 +38,6 @@ module Schedulable
           
           ActsAsSchedulable.add_occurrences_association(self, occurrences_association)
           
-          puts 'ADD ASSOC' + ActsAsSchedulable.occurrences_association_for(self).to_s
-          
           after_save "build_#{occurrences_association}"
  
           self.class.instance_eval do
@@ -91,9 +89,7 @@ module Schedulable
               end
             end
             
-            
-            puts 'BUILD OCCS: ' + occurrences_association.to_s          
-            puts '---> ' + schedulable.to_s  
+
             # build occurrences
             occurrences_records = schedulable.send(occurrences_association)
             

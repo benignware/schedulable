@@ -11,7 +11,6 @@ module Schedulable
       Schedulable.configure do |config|
         
         # copy parameters from application configuration
-        
         config.max_build_count = app.config.schedulable[:max_build_count]
         config.max_build_period = app.config.schedulable[:max_build_period]
       end
