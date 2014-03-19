@@ -32,6 +32,7 @@ This will add an association named 'schedule' that holds the schedule informatio
 
 Now you're ready to setup form fields for the schedule association using the fields_for-form_helper. 
 
+### Attributes
 The schedule object respects the following attributes:
 <table>
   <tr>
