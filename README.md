@@ -4,7 +4,7 @@ schedulable
 Handling recurring events in rails. 
 
 
-The schedulable plugin depends on the icecube scheduling-library:
+The schedulable plugin depends on the ice_cube scheduling-library:
 ```
 gem 'ice_cube'
 ```
@@ -52,9 +52,9 @@ def event_params
 end
 ```
 
-### Icecube
-The schedulable plugin uses icecube for calculating occurrences. 
-You can access icecube-methods via the schedule association:
+### IceCube
+The schedulable plugin uses ice_cube for calculating occurrences. 
+You can access ice_cube-methods via the schedule association:
 ```
 # prints all occurrences of the event until one year from now
 puts @event.schedule.occurrences(Time.now + 1.year)

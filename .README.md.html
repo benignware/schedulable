@@ -451,7 +451,7 @@ function setDocumentScrollTop(ypos)
 <body class="markdown-body">
 <h1> <a name="schedulable" class="anchor" href="..md.html#schedulable"><span class="octicon octicon-link"></span></a>schedulable</h1> 
 <p>Handling recurring events in rails. </p> 
-<p>The schedulable plugin depends on the icecube scheduling-library:</p> 
+<p>The schedulable plugin depends on the ice_cube scheduling-library:</p> 
 <pre><code>gem 'ice_cube'
 </code></pre> 
 <p>Install schedule migration and model</p> 
@@ -483,8 +483,8 @@ def event_params
   params.require(:event).permit(:name, schedule_attributes: Schedulable::ScheduleSupport.param_names)
 end
 </code></pre> 
-<h3> <a name="icecube" class="anchor" href="..md.html#icecube"><span class="octicon octicon-link"></span></a>Icecube</h3> 
-<p>The schedulable plugin uses icecube for calculating occurrences. You can access icecube-methods via the schedule association:</p> 
+<h3> <a name="icecube" class="anchor" href="..md.html#icecube"><span class="octicon octicon-link"></span></a>IceCube</h3> 
+<p>The schedulable plugin uses ice_cube for calculating occurrences. You can access ice_cube-methods via the schedule association:</p> 
 <pre><code># prints all occurrences of the event until one year from now
 puts @event.schedule.occurrences(Time.now + 1.year)
 # export to ical
