@@ -14,7 +14,7 @@ Install schedule migration and model
 rails g schedulable:install
 ```
 
-### Usage
+### Basic Usage
 
 Create your event model
 ```
