@@ -468,6 +468,57 @@ class Event &lt; ActiveRecord::Base
 end
 </code></pre> 
 <p>This will add an association named 'schedule' that holds the schedule information. </p> 
+<p>Now you're ready to setup form fields for the schedule association using the fields_for-form_helper. </p> 
+<p>The schedule object respects the following attributes:</p> 
+<table> 
+ <tbody>
+  <tr> 
+   <th>Name</th> 
+   <th>Type</th> 
+   <th>Description</th> 
+  </tr> 
+  <tr> 
+   <td>rule</td> 
+   <td>String</td> 
+   <td>One of 'singular', 'daily', 'weekly', 'monthly'</td> 
+  </tr> 
+  <tr> 
+   <td>date</td> 
+   <td>Date</td> 
+   <td>The date-attribute is used for singular events and also as startdate of the schedule</td> 
+  </tr> 
+  <tr> 
+   <td>time</td> 
+   <td>Time</td> 
+   <td>The time-attribute is used for singular events and also as starttime of the schedule</td> 
+  </tr> 
+  <tr> 
+   <td>days</td> 
+   <td>Array</td> 
+   <td>An array of weekday-names, i.e. ['monday', 'wednesday']</td> 
+  </tr> 
+  <tr> 
+   <td>day_of_week</td> 
+   <td>Hash</td> 
+   <td>A hash of weekday-names, containing arrays with indices, i.e. {:monday =&gt; [1, -1]} ('every first and last monday in month')</td> 
+  </tr> 
+  <tr> 
+   <td>interval</td> 
+   <td>Integer</td> 
+   <td>Specifies the interval of the recurring rule, i.e. every two weeks</td> 
+  </tr> 
+  <tr> 
+   <td>until</td> 
+   <td>Date</td> 
+   <td>Specifies the enddate of the schedule. Required for terminating events.</td> 
+  </tr> 
+  <tr> 
+   <td>count</td> 
+   <td>Integer</td> 
+   <td>Specifies the total number of occurrences. Required for terminating events.</td> 
+  </tr> 
+ </tbody>
+</table>
 <h4> <a name="simpleform" class="anchor" href="..md.html#simpleform"><span class="octicon octicon-link"></span></a>SimpleForm</h4> 
 <p>A custom input for simple_form is provided with the plugin</p> 
 <pre><code>rails g schedulable:simple_form
@@ -492,7 +543,7 @@ puts @event.schedule.to_ical
 </code></pre> 
 <p>See <a href="https://github.com/seejohnrun/ice_cube">https://github.com/seejohnrun/ice_cube</a> for more information.</p> 
 <h3> <a name="event-occurrences" class="anchor" href="..md.html#event-occurrences"><span class="octicon octicon-link"></span></a>Event occurrences</h3> 
-<p>We need to have the occurrences persisted because we want to query the database for all occurrences of the event model or need to add additional attributes and functionality, such as allowing users to attend to a specific occurrence of an event. The schedulable gem handles this for you. Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly: </p> 
+<p>We need to have the occurrences persisted because we want to query the database for all occurrences of all instances of an event model or need to add additional attributes and functionality, such as allowing users to attend to a specific occurrence of an event. The schedulable gem handles this for you. Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly: </p> 
 <pre><code>rails g model EventOccurrence event_id:integer date:datetime
 </code></pre> 
 <pre><code># app/models/event_occurrence.rb
@@ -506,10 +557,10 @@ class Event &lt; ActiveRecord::Base
   acts_as_schedulable occurrences: :event_occurrences
 end
 </code></pre> 
-<p>This will add a has_many-association with the name 'event_occurences' to your event-model. Instances of occurrences are built when the schedule is saved.</p> 
+<p>This will add a has_many-association with the name 'event_occurences' to your event-model. Instances of remaining occurrences are built when the schedule is saved. If the schedule has changed, the occurrences will be rebuilt if dates have also changed. Otherwise the time of the occurrence record will be adjusted to the new time. As in real life, previous occurrences will always stay untouched.</p> 
 <h4> <a name="terminating-and-non-terminating-events" class="anchor" href="..md.html#terminating-and-non-terminating-events"><span class="octicon octicon-link"></span></a>Terminating and non-terminating events</h4> 
 <p>An event is terminating if an until- or count-attribute has been specified. Since non-terminating events have infinite occurrences, we cannot build all occurrences at once ;-) So we need to limit the number of occurrences in the database. By default this will be one year from now. This can be configured via the 'build_max_count' and 'build_max_period'-options. See notes on configuration. </p> 
-<h4> <a name="automate-building-of-occurrences" class="anchor" href="..md.html#automate-building-of-occurrences"><span class="octicon octicon-link"></span></a>Automate building of occurrences</h4> 
+<h4> <a name="automate-build-of-occurrences" class="anchor" href="..md.html#automate-build-of-occurrences"><span class="octicon octicon-link"></span></a>Automate build of occurrences</h4> 
 <p>Since we cannot build all occurrences at once, we will need a task that adds occurrences as time goes by. Schedulable comes with a rake-task that performs an update on all scheduled occurrences. </p> 
 <pre><code>rake schedulable:build_occurrences
 </code></pre> 
@@ -526,6 +577,9 @@ set :output, {:error =&gt; &quot;log/cron_error_log.log&quot;, :standard =&gt; &
 every 1.day do
   rake &quot;schedulable:build_occurrences&quot;
 end
+</code></pre> 
+<p>Write to the crontab:</p> 
+<pre><code>whenever -w
 </code></pre> 
 <h3> <a name="configuration" class="anchor" href="..md.html#configuration"><span class="octicon octicon-link"></span></a>Configuration</h3> 
 <p>Generate the configuration file</p> 

@@ -30,9 +30,41 @@ end
 ```
 This will add an association named 'schedule' that holds the schedule information. 
 
+Now you're ready to setup form fields for the schedule association using the fields_for-form_helper. 
+
+The schedule object respects the following attributes:
+<table>
+  <tr>
+    <th>Name</th><th>Type</th><th>Description</th>
+  </tr>
+  <tr>
+    <td>rule</td><td>String</td><td>One of 'singular', 'daily', 'weekly', 'monthly'</td>
+  </tr>
+  <tr>
+    <td>date</td><td>Date</td><td>The date-attribute is used for singular events and also as startdate of the schedule</td>
+  </tr>
+  <tr>
+    <td>time</td><td>Time</td><td>The time-attribute is used for singular events and also as starttime of the schedule</td>
+  </tr>
+  <tr>
+    <td>days</td><td>Array</td><td>An array of weekday-names, i.e. ['monday', 'wednesday']</td>
+  </tr>
+  <tr>
+    <td>day_of_week</td><td>Hash</td><td>A hash of weekday-names, containing arrays with indices, i.e. {:monday => [1, -1]} ('every first and last monday in month')</td>
+  </tr>
+  <tr>
+    <td>interval</td><td>Integer</td><td>Specifies the interval of the recurring rule, i.e. every two weeks</td>
+  </tr>
+  <tr>
+    <td>until</td><td>Date</td><td>Specifies the enddate of the schedule. Required for terminating events.</td>
+  </tr>
+  <tr>
+    <td>count</td><td>Integer</td><td>Specifies the total number of occurrences. Required for terminating events.</td>
+  </tr>
+</table>
+
 #### SimpleForm
 A custom input for simple_form is provided with the plugin
-
 ```
 rails g schedulable:simple_form
 ```
@@ -64,7 +96,7 @@ puts @event.schedule.to_ical
 See https://github.com/seejohnrun/ice_cube for more information.
 
 ### Event occurrences
-We need to have the occurrences persisted because we want to query the database for all occurrences of the event model or need to add additional attributes and functionality, such as allowing users to attend to a specific occurrence of an event.
+We need to have the occurrences persisted because we want to query the database for all occurrences of all instances of an event model or need to add additional attributes and functionality, such as allowing users to attend to a specific occurrence of an event.
 The schedulable gem handles this for you. 
 Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly:  
 
@@ -87,7 +119,9 @@ class Event < ActiveRecord::Base
 end
 ```
 This will add a has_many-association with the name 'event_occurences' to your event-model. 
-Instances of occurrences are built when the schedule is saved.
+Instances of remaining occurrences are built when the schedule is saved. 
+If the schedule has changed, the occurrences will be rebuilt if dates have also changed. Otherwise the time of the occurrence record will be adjusted to the new time.
+As in real life, previous occurrences will always stay untouched.
 
 #### Terminating and non-terminating events
 An event is terminating if an until- or count-attribute has been specified. 
@@ -97,7 +131,7 @@ By default this will be one year from now.
 This can be configured via the 'build_max_count' and 'build_max_period'-options. 
 See notes on configuration. 
 
-#### Automate building of occurrences
+#### Automate build of occurrences
 Since we cannot build all occurrences at once, we will need a task that adds occurrences as time goes by. 
 Schedulable comes with a rake-task that performs an update on all scheduled occurrences. 
 ```
@@ -121,7 +155,10 @@ every 1.day do
   rake "schedulable:build_occurrences"
 end
 ```
-
+Write to the crontab:
+```
+whenever -w
+```
 
 ### Configuration
 Generate the configuration file
@@ -135,13 +172,3 @@ Schedulable.configure do |config|
   config.max_build_period = 1.year
 end
 ```
-
-
-
-
-
-
-
-
-
-
