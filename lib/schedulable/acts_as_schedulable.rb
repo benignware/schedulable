@@ -89,8 +89,8 @@ module Schedulable
               end
             end
             
-            # puts "build #{occurrences_association} for #{self.class.name} ##{self.id}" 
             
+            puts 'BUILD OCCS: ' + occurrences_association.to_s            
             # build occurrences
             occurrences_records = schedulable.send(occurrences_association)
             
