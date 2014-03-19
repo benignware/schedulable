@@ -20,7 +20,7 @@ module Schedulable
     
     # rake tasks
     rake_tasks do
-      load "lib/tasks/schedulable.rake"
+      load "lib/tasks/schedulable_tasks.rake"
     end
     
   end
