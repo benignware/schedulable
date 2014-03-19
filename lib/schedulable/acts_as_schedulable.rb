@@ -94,12 +94,14 @@ module Schedulable
             occurrences_records = schedulable.send(occurrences_association)
             
             # clean up unused remaining occurrences 
+            record_count = 0
             occurrences_records.each do |occurrence_record|
               if occurrence_record.date > now
                 # destroy occurrence if it's not used anymore
-                if !schedule.occurs_on?(occurrence_record.date)
+                if !schedule.occurs_on?(occurrence_record.date) || occurrence_record.date > max_date || record_count > max_build_count
                   occurrences_records.delete(occurrence_record)
                 end
+                record_count = record_count + 1
               end
             end
             
