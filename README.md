@@ -1,16 +1,18 @@
 schedulable
 ===========
 
-Handling recurring events in rails
+Handling recurring events in rails. 
 
+
+The schedulable plugin depends on the icecube scheduling-library:
 ```
 gem 'ice_cube'
 ```
 
+Install schedule migration and model
 ```
 rails g schedulable:install
 ```
-
 
 ### Usage
 
