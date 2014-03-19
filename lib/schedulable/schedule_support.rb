@@ -15,6 +15,10 @@ module Schedulable
         @schedule.send(meth, *args, &block)
       end
     end
+    
+    def self.param_names
+      [:id, :date, :time, :rule, :until, :count, :interval, days: [], day_of_week: [monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []]]
+    end
   
     private
     
