@@ -27,14 +27,21 @@ module Schedulable
             occurrences_association = options[:occurrences][:name]
             options[:occurrences].delete(:name)
           end
-          options[:occurrences][:order]||= attribute
+          options[:occurrences][:class_name] = occurrences_association.to_s.classify
+          options[:occurrences][:as]||= :schedulable
+          options[:occurrences][:dependent]||:destroy
           
           has_many occurrences_association, options[:occurrences]
           
-          # TODO: setup remaining occurrences association
-          #remaining_occurrences_options = options[:occurrences].clone
-          #remaining_occurrences_options.conditions = { date: Proc.new { {date: self.date} }
-          #has_many "remaining_" + occurrences_association, remaining_occurrences_options
+          # remaining
+          remaining_occurrences_options = options[:occurrences].clone
+          remaining_occurrences_association = ("remaining_" << occurrences_association.to_s).to_sym
+          has_many remaining_occurrences_association, -> { where "date >= ?", Time.now}, remaining_occurrences_options
+          
+          # previous
+          previous_occurrences_options = options[:occurrences].clone
+          previous_occurrences_association = ("previous_" << occurrences_association.to_s).to_sym
+          has_many previous_occurrences_association, -> { where "date < ?", Time.now}, previous_occurrences_options
           
           ActsAsSchedulable.add_occurrences_association(self, occurrences_association)
           
@@ -91,6 +98,11 @@ module Schedulable
             
 
             # build occurrences
+            assocs = schedulable.class.reflect_on_all_associations(:has_many)
+            assocs.each do |assoc|
+              puts assoc.name
+            end
+            
             occurrences_records = schedulable.send(occurrences_association)
             
             # clean up unused remaining occurrences 
