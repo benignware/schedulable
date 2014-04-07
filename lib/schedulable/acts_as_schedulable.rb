@@ -114,7 +114,7 @@ module Schedulable
               if occurrence_record.date > now
                 # destroy occurrence if it's not used anymore
                 if !schedule.occurs_on?(occurrence_record.date) || occurrence_record.date > max_date || record_count > max_build_count
-                  if !occurrence_record.destroy
+                  if occurrences_records.destroy(occurrence_record)
                     puts 'an error occurred while destroying an unused occurrence record'
                   end
                 end
@@ -132,8 +132,8 @@ module Schedulable
               if existing.length > 0
                 # a record for this date already exists, adjust time
                 existing.each { |record|
-                  record.date = occurrence.to_datetime
-                  if !record.update()
+                  #record.date = occurrence.to_datetime
+                  if !occurrences_records.update(record, date: occurrence.to_datetime)
                     puts 'an error occurred while saving an existing occurrence record'
                   end
                 }
