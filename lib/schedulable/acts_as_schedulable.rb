@@ -30,6 +30,7 @@ module Schedulable
           options[:occurrences][:class_name] = occurrences_association.to_s.classify
           options[:occurrences][:as]||= :schedulable
           options[:occurrences][:dependent]||:destroy
+          options[:occurrences][:autosave]||= true
           
           has_many occurrences_association, options[:occurrences]
           
@@ -96,6 +97,8 @@ module Schedulable
               end
             end
             
+            
+            puts 'build occurrences'
 
             # build occurrences
             assocs = schedulable.class.reflect_on_all_associations(:has_many)
@@ -111,7 +114,9 @@ module Schedulable
               if occurrence_record.date > now
                 # destroy occurrence if it's not used anymore
                 if !schedule.occurs_on?(occurrence_record.date) || occurrence_record.date > max_date || record_count > max_build_count
-                  occurrences_records.delete(occurrence_record)
+                  if !occurrence_record.destroy
+                    puts 'an error occurred while destroying an unused occurrence record'
+                  end
                 end
                 record_count = record_count + 1
               end
@@ -128,11 +133,15 @@ module Schedulable
                 # a record for this date already exists, adjust time
                 existing.each { |record|
                   record.date = occurrence.to_datetime
-                  record.save
+                  if !record.update()
+                    puts 'an error occurred while saving an existing occurrence record'
+                  end
                 }
               else
                 # create new record
-                occurrences_records.create(date: occurrence.to_datetime)
+                if !occurrences_records.create(date: occurrence.to_datetime)
+                  puts 'an error occurred while creating an occurrence record'
+                end
               end
             end
             
@@ -140,15 +149,8 @@ module Schedulable
           
         end
         
-        include ActsAsSchedulable::LocalInstanceMethods
-        
       end
   
-    end
-    
-    module LocalInstanceMethods
-      
-      
     end
     
     def self.occurrences_associations_for(clazz)
@@ -159,7 +161,6 @@ module Schedulable
         item[:name]
       }
     end
-    
     
     private
     
