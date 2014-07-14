@@ -44,7 +44,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
                 Time::DAYS_INTO_WEEK.invert.values.reduce(''.html_safe) { | x, weekday | 
                   x << template.content_tag("tr") do 
                     template.content_tag("td") do
-                      db.label weekday.capitalize, required: false
+                      db.label t(weekday.capitalize), required: false
                     end << 
                     db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, item_wrapper_tag: :td, checked: db.object.send(weekday)) 
                   end

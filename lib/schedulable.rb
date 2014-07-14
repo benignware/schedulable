@@ -1,6 +1,8 @@
 require 'schedulable/railtie.rb' if defined? ::Rails::Railtie
 require 'schedulable/acts_as_schedulable.rb'
 require 'schedulable/schedule_support.rb'
+require 'i18n'
+
 module Schedulable
   
   class Config
