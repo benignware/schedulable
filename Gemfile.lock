@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    schedulable (0.0.3)
+    schedulable (0.0.4)
       ice_cube
       rails (~> 4.0.3)
 
