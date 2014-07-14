@@ -4,11 +4,11 @@ module Schedulable
       
       argument :locale, :type => :string, :default => "en"  
       
-      source_root File.expand_path('../../../../../config/locales', __FILE__)
+      source_root File.expand_path('../templates', __FILE__)
       
       def create_locale
         puts 'install locale'
-        template "schedulable.#{locale}.yml", "config/locales/schedulable.#{locale}.yml"
+        template "locale/schedulable.#{locale}.yml", "config/locales/schedulable.#{locale}.yml"
       end
       
     end
