@@ -37,6 +37,8 @@ module Schedulable
           # table_name
           occurrences_table_name = occurrences_association.to_s.tableize
           
+          puts "SCHEDULABLE OCCURRENCES TABLE NAME: " + occurrences_table_name.to_s
+          
           # remaining
           remaining_occurrences_options = options[:occurrences].clone
           remaining_occurrences_association = ("remaining_" << occurrences_association.to_s).to_sym
