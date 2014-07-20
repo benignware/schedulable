@@ -34,15 +34,18 @@ module Schedulable
           
           has_many occurrences_association, options[:occurrences]
           
+          # table_name
+          occurrences_table_name = occurrences_association.to_s.tableize
+          
           # remaining
           remaining_occurrences_options = options[:occurrences].clone
           remaining_occurrences_association = ("remaining_" << occurrences_association.to_s).to_sym
-          has_many remaining_occurrences_association, -> { where "date >= ?", Time.now}, remaining_occurrences_options
+          has_many remaining_occurrences_association, -> { where "#{occurrences_table_name}.date >= ?", Time.now}, remaining_occurrences_options
           
           # previous
           previous_occurrences_options = options[:occurrences].clone
           previous_occurrences_association = ("previous_" << occurrences_association.to_s).to_sym
-          has_many previous_occurrences_association, -> { where "date < ?", Time.now}, previous_occurrences_options
+          has_many previous_occurrences_association, -> { where "#{occurrences_table_name}.date < ?", Time.now}, previous_occurrences_options
           
           ActsAsSchedulable.add_occurrences_association(self, occurrences_association)
           
