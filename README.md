@@ -139,7 +139,7 @@ rails g schedulable:locale en
 Schedulable has also bundled messages in german. Use `de` as identifier.
 
 #### Localize Ice-Cube
-Internationalization of ice-cube itself can be integrated by using this fork:
+Internationalization of ice-cube itself can be integrated by using [this fork](https://github.com/joelmeyerhamme/ice_cube):
 ```ruby
 gem 'ice_cube', git: 'git://github.com/joelmeyerhamme/ice_cube.git', branch: 'international' 
 ```
