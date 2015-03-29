@@ -3,21 +3,23 @@ schedulable
 
 Handling recurring events in rails. 
 
+### Install
 
-The schedulable plugin depends on the ice_cube scheduling-library:
-```
+Put the following into your Gemfile and run `bundle install`
+```cli
 gem 'ice_cube'
+gem 'schedulable'
 ```
 
 Install schedule migration and model
-```
+```cli
 rails g schedulable:install
 ```
 
 ### Basic Usage
 
-Create your event model
-```
+Create an event model
+```cli
 rails g scaffold Event name:string
 ```
 
@@ -28,7 +30,7 @@ class Event < ActiveRecord::Base
   acts_as_schedulable
 end
 ```
-This will add an association named 'schedule' that holds the schedule information. 
+This will add an association to the model named 'schedule' which holds the schedule information. 
 
 Now you're ready to setup form fields for the schedule association using the fields_for-form_helper. 
 
@@ -65,19 +67,36 @@ The schedule object respects the following attributes:
 </table>
 
 #### SimpleForm
-A custom input for simple_form is provided with the plugin
-```
+A custom input for simple_form is provided with the plugin. Make sure, you installed [SimpleForm](https://github.com/plataformatec/simple_form) and executed `rails generate simple_form:install`.
+
+```cli
 rails g schedulable:simple_form
 ```
 
-```
--# app/views/events/_form.html.haml
-.form-inputs
-  = f.input :name
-  = f.input :schedule, as: :schedule
+```ruby
+<%# app/views/events/_form.html.erb %>
+<%= simple_form_for(@event) do |f| %>
+  
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  
+  <div class="field">
+    <%= f.label :schedule %><br>
+    <%= f.input :schedule, as: :schedule %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+  
+<% end %>
+
 ```
 
 #### Strong parameters
+
 ```
 # app/controllers/event_controller.rb
 def event_params
@@ -88,24 +107,54 @@ end
 ### IceCube
 The schedulable plugin uses ice_cube for calculating occurrences. 
 You can access ice_cube-methods via the schedule association:
+
+```ruby
+<%# app/views/events/show.html.erb %>
+<p>
+  <strong>Schedule:</strong>
+  <%# prints out a human-friendly description of the schedule, such as %> 
+  <%= @event.schedule %>
+</p>
+```
+
 ```
 # prints all occurrences of the event until one year from now
 puts @event.schedule.occurrences(Time.now + 1.year)
 # export to ical
 puts @event.schedule.to_ical
 ```
-See https://github.com/seejohnrun/ice_cube for more information.
+See [IceCube](https://github.com/seejohnrun/ice_cube) for more information.
 
-### Event occurrences
+### Internationalization
+
+At first you need to make sure you included all neccessary datetime translations. 
+A basic setup can be found [here](https://github.com/svenfuchs/rails-i18n/tree/master/rails/locale).
+
+#### Localize Schedulable
+Use the locale-generator to create a .yml-file containing schedulable messages in english:
+```cli
+rails g schedulable:locale en
+```
+
+Schedulable has also bundled messages in german. Use `de` as identifier.
+
+#### Localize Ice-Cube
+Internationalization of ice-cube itself can be integrated by using this fork:
+```ruby
+gem 'ice_cube', git: 'git://github.com/joelmeyerhamme/ice_cube.git', branch: 'international' 
+```
+
+
+### Persist event occurrences
 We need to have the occurrences persisted because we want to query the database for all occurrences of all instances of an event model or need to add additional attributes and functionality, such as allowing users to attend to a specific occurrence of an event.
 The schedulable gem handles this for you. 
 Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly:  
 
-```
+```ruby
 rails g model EventOccurrence event_id:integer date:datetime
 ```
 
-```
+```ruby
 # app/models/event_occurrence.rb
 class EventOccurrence < ActiveRecord::Base
   belongs_to :event
@@ -135,20 +184,30 @@ See notes on configuration.
 #### Automate build of occurrences
 Since we cannot build all occurrences at once, we will need a task that adds occurrences as time goes by. 
 Schedulable comes with a rake-task that performs an update on all scheduled occurrences. 
-```
+
+```cli
 rake schedulable:build_occurrences
 ```
-You may add the task to crontab. 
+
+You may add this task to crontab. 
+
+##### Using 'whenever' to schedule build of occurrences
+
 With the 'whenever' gem this can be easily achieved. 
+
 ```
 gem 'whenever', :require => false
 ```
-Create the 'whenever'-configuration file:
-```
+
+Generate the 'whenever'-configuration file:
+
+```cli
 wheneverize .
 ```
+
 Open up the file 'config/schedule.rb' and add the job:
-```
+
+```ruby
 set :environment, "development"
 set :output, {:error => "log/cron_error_log.log", :standard => "log/cron_log.log"}
 
@@ -156,18 +215,23 @@ every 1.day do
   rake "schedulable:build_occurrences"
 end
 ```
-Write to the crontab:
-```
+
+Write to crontab:
+
+```cli
 whenever -w
 ```
 
 ### Configuration
 Generate the configuration file
-```
+
+```cli
 rails g schedulable:config
 ```
+
 Open 'config/initializers/schedulable.rb' and edit options as you need:
-```
+
+```ruby
 Schedulable.configure do |config|
   config.max_build_count = 0
   config.max_build_period = 1.year
