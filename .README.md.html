@@ -2,13 +2,14 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>/Users/aphorisme/Documents/Projekte/Kicks App/Workspace/schedulable/.README.md.html</title>
+<title>/Users/rafaelnowrotek/Documents/Projekte/Project Play/schedulable/.README.md.html</title>
 
 
 <style type="text/css">
 body {
 	color: #333;
 	font: 13px/1.4 Helvetica,arial,freesans,clean,sans-serif;
+	font-family: sans-serif;
 }
 
 .markdown-body {
@@ -90,6 +91,14 @@ body {
 }
 .markdown-body p, .markdown-body blockquote, .markdown-body ul, .markdown-body ol, .markdown-body dl, .markdown-body table, .markdown-body pre {
     margin: 15px 0;
+}
+.markdown-body hr {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAYAAACtBE5DAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OENDRjNBN0E2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OENDRjNBN0I2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4Q0NGM0E3ODY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4Q0NGM0E3OTY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqqezsUAAAAfSURBVHjaYmRABcYwBiM2QSA4y4hNEKYDQxAEAAIMAHNGAzhkPOlYAAAAAElFTkSuQmCC") repeat-x;
+    border: 0;
+    color: #CCC;
+    height: 4px;
+    margin: 15px 0;
+    padding: 0;
 }
 .markdown-body ul, .markdown-body ol {
     padding-left: 30px;
@@ -449,6 +458,192 @@ function setDocumentScrollTop(ypos)
 
 </head>
 <body class="markdown-body">
-{&quot;message&quot;:&quot;API rate limit exceeded for 85.183.9.45. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)&quot;,&quot;documentation_url&quot;:&quot;http://developer.github.com/v3/#rate-limiting&quot;}
+<h1> <a id="user-content-schedulable" class="anchor" href="#schedulable" aria-hidden="true"><span class="octicon octicon-link"></span></a>schedulable</h1> 
+<p>Handling recurring events in rails. </p> 
+<h3> <a id="user-content-install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h3> 
+<p>Put the following into your Gemfile and run <code>bundle install</code></p> 
+<pre lang="cli"><code>gem 'ice_cube'
+gem 'schedulable'
+</code></pre> 
+<p>Install schedule migration and model</p> 
+<pre lang="cli"><code>rails g schedulable:install
+</code></pre> 
+<h3> <a id="user-content-basic-usage" class="anchor" href="#basic-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Usage</h3> 
+<p>Create an event model</p> 
+<pre lang="cli"><code>rails g scaffold Event name:string
+</code></pre> 
+<p>Configure your model to be schedulable:</p> 
+<pre><code># app/models/event.rb
+class Event &lt; ActiveRecord::Base
+  acts_as_schedulable
+end
+</code></pre> 
+<p>This will add an association to the model named 'schedule' which holds the schedule information. </p> 
+<p>Now you're ready to setup form fields for the schedule association using the fields_for-form_helper. </p> 
+<h3> <a id="user-content-attributes" class="anchor" href="#attributes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attributes</h3> 
+<p>The schedule object respects the following attributes:</p> 
+<table> 
+ <tbody>
+  <tr> 
+   <th>Name</th> 
+   <th>Type</th> 
+   <th>Description</th> 
+  </tr> 
+  <tr> 
+   <td>rule</td> 
+   <td>String</td> 
+   <td>One of 'singular', 'daily', 'weekly', 'monthly'</td> 
+  </tr> 
+  <tr> 
+   <td>date</td> 
+   <td>Date</td> 
+   <td>The date-attribute is used for singular events and also as startdate of the schedule</td> 
+  </tr> 
+  <tr> 
+   <td>time</td> 
+   <td>Time</td> 
+   <td>The time-attribute is used for singular events and also as starttime of the schedule</td> 
+  </tr> 
+  <tr> 
+   <td>days</td> 
+   <td>Array</td> 
+   <td>An array of weekday-names, i.e. ['monday', 'wednesday']</td> 
+  </tr> 
+  <tr> 
+   <td>day_of_week</td> 
+   <td>Hash</td> 
+   <td>A hash of weekday-names, containing arrays with indices, i.e. {:monday =&gt; [1, -1]} ('every first and last monday in month')</td> 
+  </tr> 
+  <tr> 
+   <td>interval</td> 
+   <td>Integer</td> 
+   <td>Specifies the interval of the recurring rule, i.e. every two weeks</td> 
+  </tr> 
+  <tr> 
+   <td>until</td> 
+   <td>Date</td> 
+   <td>Specifies the enddate of the schedule. Required for terminating events.</td> 
+  </tr> 
+  <tr> 
+   <td>count</td> 
+   <td>Integer</td> 
+   <td>Specifies the total number of occurrences. Required for terminating events.</td> 
+  </tr> 
+ </tbody>
+</table> 
+<h4> <a id="user-content-simpleform" class="anchor" href="#simpleform" aria-hidden="true"><span class="octicon octicon-link"></span></a>SimpleForm</h4> 
+<p>A custom input for simple_form is provided with the plugin. Make sure, you installed <a href="https://github.com/plataformatec/simple_form">SimpleForm</a> and executed <code>rails generate simple_form:install</code>.</p> 
+<pre lang="cli"><code>rails g schedulable:simple_form
+</code></pre> 
+<div class="highlight highlight-ruby">
+ <pre><span class="pl-k">&lt;</span><span class="pl-s"><span class="pl-pds">%#</span> app/views/events/_form.html.erb %&gt;</span>
+<span class="pl-s">&lt;%= simple_form_for(@event) do |f| %&gt;</span>
+<span class="pl-s"></span>
+<span class="pl-s">  &lt;div class=&quot;field&quot;&gt;</span>
+<span class="pl-s">    &lt;%= f.label :name %&gt;&lt;br&gt;</span>
+<span class="pl-s">    &lt;%= f.text_field :name %&gt;</span>
+<span class="pl-s">  &lt;/div&gt;</span>
+<span class="pl-s"></span>
+<span class="pl-s">  &lt;div class=&quot;field&quot;&gt;</span>
+<span class="pl-s">    &lt;%= f.label :schedule %&gt;&lt;br&gt;</span>
+<span class="pl-s">    &lt;%= f.input :schedule, as: :schedule %&gt;</span>
+<span class="pl-s">  &lt;/div&gt;</span>
+<span class="pl-s"></span>
+<span class="pl-s">  &lt;div class=&quot;actions&quot;&gt;</span>
+<span class="pl-s">    &lt;%= f.submit %&gt;</span>
+<span class="pl-s">  &lt;/div&gt;</span>
+<span class="pl-s"></span>
+<span class="pl-s">&lt;% end %&gt;</span>
+<span class="pl-s"></span></pre>
+</div> 
+<h4> <a id="user-content-strong-parameters" class="anchor" href="#strong-parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Strong parameters</h4> 
+<pre><code># app/controllers/event_controller.rb
+def event_params
+  params.require(:event).permit(:name, schedule_attributes: Schedulable::ScheduleSupport.param_names)
+end
+</code></pre> 
+<h3> <a id="user-content-icecube" class="anchor" href="#icecube" aria-hidden="true"><span class="octicon octicon-link"></span></a>IceCube</h3> 
+<p>The schedulable plugin uses ice_cube for calculating occurrences. You can access ice_cube-methods via the schedule association:</p> 
+<div class="highlight highlight-ruby">
+ <pre><span class="pl-k">&lt;</span><span class="pl-s"><span class="pl-pds">%#</span> app/views/events/show.html.erb %&gt;</span>
+<span class="pl-s">&lt;p&gt;</span>
+<span class="pl-s">  &lt;strong&gt;Schedule:&lt;/strong&gt;</span>
+<span class="pl-s">  &lt;%<span class="pl-pds">#</span></span> prints out a human<span class="pl-k">-</span>friendly description of the schedule, such as <span class="pl-s"><span class="pl-pds">%&gt;</span> </span>
+<span class="pl-s">  &lt;%= @event.schedule %<span class="pl-pds">&gt;</span></span>
+<span class="pl-k">&lt;</span><span class="pl-k">/</span>p<span class="pl-k">&gt;</span></pre>
+</div> 
+<pre><code># prints all occurrences of the event until one year from now
+puts @event.schedule.occurrences(Time.now + 1.year)
+# export to ical
+puts @event.schedule.to_ical
+</code></pre> 
+<p>See <a href="https://github.com/seejohnrun/ice_cube">IceCube</a> for more information.</p> 
+<h3> <a id="user-content-internationalization" class="anchor" href="#internationalization" aria-hidden="true"><span class="octicon octicon-link"></span></a>Internationalization</h3> 
+<p>At first you need to make sure you included all neccessary datetime translations. A basic setup can be found <a href="https://github.com/svenfuchs/rails-i18n/tree/master/rails/locale">here</a>.</p> 
+<h4> <a id="user-content-localize-schedulable" class="anchor" href="#localize-schedulable" aria-hidden="true"><span class="octicon octicon-link"></span></a>Localize Schedulable</h4> 
+<p>Use the locale-generator to create a .yml-file containing schedulable messages in english:</p> 
+<pre lang="cli"><code>rails g schedulable:locale en
+</code></pre> 
+<p>Schedulable has also bundled messages in german. Use <code>de</code> as identifier.</p> 
+<h4> <a id="user-content-localize-ice-cube" class="anchor" href="#localize-ice-cube" aria-hidden="true"><span class="octicon octicon-link"></span></a>Localize Ice-Cube</h4> 
+<p>Internationalization of ice-cube itself can be integrated by using <a href="https://github.com/joelmeyerhamme/ice_cube">this fork</a>:</p> 
+<div class="highlight highlight-ruby">
+ <pre><span class="pl-k">gem</span> <span class="pl-s"><span class="pl-pds">'</span>ice_cube<span class="pl-pds">'</span></span>, <span class="pl-c1">git:</span> <span class="pl-s"><span class="pl-pds">'</span>git://github.com/joelmeyerhamme/ice_cube.git<span class="pl-pds">'</span></span>, <span class="pl-c1">branch:</span> <span class="pl-s"><span class="pl-pds">'</span>international<span class="pl-pds">'</span></span> </pre>
+</div> 
+<h3> <a id="user-content-persist-event-occurrences" class="anchor" href="#persist-event-occurrences" aria-hidden="true"><span class="octicon octicon-link"></span></a>Persist event occurrences</h3> 
+<p>We need to have the occurrences persisted because we want to query the database for all occurrences of all instances of an event model or need to add additional attributes and functionality, such as allowing users to attend to a specific occurrence of an event. The schedulable gem handles this for you. Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly: </p> 
+<div class="highlight highlight-ruby">
+ <pre>rails g model <span class="pl-c1">EventOccurrence</span> <span class="pl-c1">event_id:</span>integer <span class="pl-c1">date:</span>datetime</pre>
+</div> 
+<div class="highlight highlight-ruby">
+ <pre><span class="pl-c"># app/models/event_occurrence.rb</span>
+<span class="pl-k">class</span> <span class="pl-en">EventOccurrence<span class="pl-e"> &lt; ActiveRecord::Base</span></span>
+  belongs_to <span class="pl-c1">:event</span>
+<span class="pl-k">end</span></pre>
+</div> 
+<p>Then you can simply declare your occurrences with the acts_as_schedule-method like this:</p> 
+<pre><code># app/models/event.rb
+class Event &lt; ActiveRecord::Base
+  acts_as_schedulable occurrences: :event_occurrences
+end
+</code></pre> 
+<p>This will add a has_many-association with the name 'event_occurences' to your event-model. Instances of remaining occurrences are built when the schedule is saved. If the schedule has changed, the occurrences will be rebuilt if dates have also changed. Otherwise the time of the occurrence record will be adjusted to the new time. As in real life, previous occurrences will always stay untouched.</p> 
+<h4> <a id="user-content-terminating-and-non-terminating-events" class="anchor" href="#terminating-and-non-terminating-events" aria-hidden="true"><span class="octicon octicon-link"></span></a>Terminating and non-terminating events</h4> 
+<p>An event is terminating if an until- or count-attribute has been specified. Since non-terminating events have infinite occurrences, we cannot build all occurrences at once ;-) So we need to limit the number of occurrences in the database. By default this will be one year from now. This can be configured via the 'build_max_count' and 'build_max_period'-options. See notes on configuration. </p> 
+<h4> <a id="user-content-automate-build-of-occurrences" class="anchor" href="#automate-build-of-occurrences" aria-hidden="true"><span class="octicon octicon-link"></span></a>Automate build of occurrences</h4> 
+<p>Since we cannot build all occurrences at once, we will need a task that adds occurrences as time goes by. Schedulable comes with a rake-task that performs an update on all scheduled occurrences. </p> 
+<pre lang="cli"><code>rake schedulable:build_occurrences
+</code></pre> 
+<p>You may add this task to crontab. </p> 
+<h5> <a id="user-content-using-whenever-to-schedule-build-of-occurrences" class="anchor" href="#using-whenever-to-schedule-build-of-occurrences" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using 'whenever' to schedule build of occurrences</h5> 
+<p>With the 'whenever' gem this can be easily achieved. </p> 
+<pre><code>gem 'whenever', :require =&gt; false
+</code></pre> 
+<p>Generate the 'whenever'-configuration file:</p> 
+<pre lang="cli"><code>wheneverize .
+</code></pre> 
+<p>Open up the file 'config/schedule.rb' and add the job:</p> 
+<div class="highlight highlight-ruby">
+ <pre>set <span class="pl-c1">:environment</span>, <span class="pl-s"><span class="pl-pds">&quot;</span>development<span class="pl-pds">&quot;</span></span>
+set <span class="pl-c1">:output</span>, {<span class="pl-c1">:error</span> =&gt; <span class="pl-s"><span class="pl-pds">&quot;</span>log/cron_error_log.log<span class="pl-pds">&quot;</span></span>, <span class="pl-c1">:standard</span> =&gt; <span class="pl-s"><span class="pl-pds">&quot;</span>log/cron_log.log<span class="pl-pds">&quot;</span></span>}
+
+every <span class="pl-c1">1</span>.day <span class="pl-k">do</span>
+  rake <span class="pl-s"><span class="pl-pds">&quot;</span>schedulable:build_occurrences<span class="pl-pds">&quot;</span></span>
+<span class="pl-k">end</span></pre>
+</div> 
+<p>Write to crontab:</p> 
+<pre lang="cli"><code>whenever -w
+</code></pre> 
+<h3> <a id="user-content-configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3> 
+<p>Generate the configuration file</p> 
+<pre lang="cli"><code>rails g schedulable:config
+</code></pre> 
+<p>Open 'config/initializers/schedulable.rb' and edit options as you need:</p> 
+<div class="highlight highlight-ruby">
+ <pre><span class="pl-c1">Schedulable</span>.configure <span class="pl-k">do </span>|<span class="pl-smi">config</span>|
+  config.max_build_count <span class="pl-k">=</span> <span class="pl-c1">0</span>
+  config.max_build_period <span class="pl-k">=</span> <span class="pl-c1">1</span>.year
+<span class="pl-k">end</span></pre>
+</div>
 </body>
 </html>
