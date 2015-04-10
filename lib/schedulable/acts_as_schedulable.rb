@@ -9,9 +9,9 @@ module Schedulable
    
     module ClassMethods
       
-      def acts_as_schedulable(options = {})
+      def acts_as_schedulable(name, options = {})
         
-        name = options[:name] || :schedule
+        name||= :schedule
         attribute = :date
         
         has_one name, as: :schedulable, dependent: :destroy
@@ -36,8 +36,6 @@ module Schedulable
           
           # table_name
           occurrences_table_name = occurrences_association.to_s.tableize
-          
-          puts "SCHEDULABLE OCCURRENCES TABLE NAME: " + occurrences_table_name.to_s
           
           # remaining
           remaining_occurrences_options = options[:occurrences].clone
@@ -72,88 +70,80 @@ module Schedulable
             schedule = self.send(name)
             
             now = Time.now
+            
+            # TODO: Make configurable 
             occurrence_attribute = :date
             
             schedulable = schedule.schedulable
             terminating = schedule.until.present? || schedule.count.present? && schedule.count > 0
 
-            max_build_period = Schedulable.config.max_build_period || 1.year
-            max_date = now + max_build_period
-            max_date = terminating ? [max_date, schedule.last.to_time].min : max_date
+            max_period = Schedulable.config.max_build_period || 1.year
+            max_date = now + max_period
+            max_date = schedule.last.present? && terminating ? [max_date, schedule.last.to_time].min : max_date
             
-            max_build_count = Schedulable.config.max_build_count || 0
-            max_build_count = terminating ? [max_build_count, schedule.remaining_occurrences.count].min : max_build_count
+            max_count = Schedulable.config.max_build_count || 100
+            max_count = terminating ? [max_count, schedule.remaining_occurrences.count].min : max_count
 
-            # get occurrences
-            if max_build_count > 0
-              # get next occurrences for max_build_count
-              occurrences = schedule.next_occurrences(max_build_count)
+            # Get schedule occurrences
+            if max_count > 0
+              # Get next occurrences within count range
+              occurrences = schedule.next_occurrences(max_count)
             end
             
-            if !occurrences || occurrences.last && occurrences.last.to_time > max_date 
-              # get next occurrences for max_date
+            if !occurrences || occurrences.last.present? && occurrences.last.to_time > max_date 
+              # Get next occurrences within date range
               all_occurrences = schedule.occurrences(max_date)
               occurrences = []
-              # filter future dates
+              # Filter future dates
               all_occurrences.each do |occurrence_date|
-                if occurrence_date.to_time > now
+                if occurrence_date.present? && occurrence_date.to_time > now
                   occurrences << occurrence_date
                 end
               end
             end
             
+            # Build occurrences
             
-            puts 'build occurrences'
+            # Get existing records
+            occurrences_records = schedulable.send(occurrences_association)
 
             # build occurrences
-            assocs = schedulable.class.reflect_on_all_associations(:has_many)
-            assocs.each do |assoc|
-              puts assoc.name
-            end
-            
-            occurrences_records = schedulable.send(occurrences_association)
-            
-            # clean up unused remaining occurrences 
-            record_count = 0
-            occurrences_records.each do |occurrence_record|
-              if occurrence_record.date > now
-                # destroy occurrence if it's not used anymore
-                if !schedule.occurs_on?(occurrence_record.date) || occurrence_record.date > max_date || record_count > max_build_count
-                  if occurrences_records.destroy(occurrence_record)
-                    puts 'an error occurred while destroying an unused occurrence record'
-                  end
-                end
-                record_count = record_count + 1
-              end
-            end
-            
-            # build occurrences
-            occurrences.each do |occurrence|
+            existing_record = nil
+            occurrences.each_with_index do |occurrence, index|
               
-              # filter existing occurrence records
-              existing = occurrences_records.select { |record|
-                record.date.to_date == occurrence.to_date
-              }
-              if existing.length > 0
-                # a record for this date already exists, adjust time
-                existing.each { |record|
-                  #record.date = occurrence.to_datetime
-                  if !occurrences_records.update(record, date: occurrence.to_datetime)
-                    puts 'an error occurred while saving an existing occurrence record'
-                  end
-                }
+              # Pull an existing record
+              existing_record = occurrences_records[index]
+              
+              if existing_record.present?
+                # Overwrite existing record
+                if !occurrences_records.update(existing_record, date: occurrence.to_datetime)
+                  puts 'an error occurred while saving an existing occurrence record'
+                end
               else
-                # create new record
+                # Create new record
                 if !occurrences_records.create(date: occurrence.to_datetime)
                   puts 'an error occurred while creating an occurrence record'
                 end
               end
             end
             
+            
+            # Clean up unused remaining occurrences 
+            record_count = 0
+            
+            occurrences_records.each do |occurrence_record|
+              if occurrence_record.date > now
+                # Destroy occurrence if date or count lies beyond range
+                if occurrence_record.date > max_date || max_count > 0 && record_count > max_count
+                  occurrences_records.destroy(occurrence_record)
+                end
+                record_count = record_count + 1
+              end
+            end
+            
           end
           
         end
-        
       end
   
     end
