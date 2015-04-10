@@ -1,31 +1,52 @@
 class ScheduleInput < SimpleForm::Inputs::Base
   
-  
-  def input
+  def input(wrapper_options)
+    
+    # I18n
     weekdays = Date::DAYNAMES.map(&:downcase)
-    daynames = I18n.t('date.day_names')
-    daylabels = Hash[weekdays.zip(daynames)]
     weekdays = weekdays.slice(1..7) << weekdays.slice(0)
-      
+    
+    day_names = I18n.t('date.day_names', default: "")
+    day_names = day_names.blank? ? weekdays.map { |day| day.capitalize } : day_names.slice(1..7) << day_names.slice(0)
+    day_labels = Hash[weekdays.zip(day_names)]
+    
+    # Pass in default month names when missing in translations
+    month_names = I18n.t('date.month_names', default: "")
+    month_names = month_names.blank? ? Date::MONTHNAMES : month_names
+
+    # Pass in default order when missing in translations
+    date_order = I18n.t('date.order', default: "")
+    date_order = date_order.blank? ? [:year, :month, :day] : date_order 
+    
+    date_options = {
+      order: date_order,
+      use_month_names: month_names
+    }
+     
+    # Input html options
     input_html_options[:type] ||= input_type if html5?
     
-    # options
+    # Input options
     input_options[:interval] = !input_options[:interval].nil? ? input_options[:interval] : true
     input_options[:until] = !input_options[:until].nil? ? input_options[:until] : true
     input_options[:count] = !input_options[:count].nil? ? input_options[:count] : true
     
+
     @builder.simple_fields_for(:schedule, @builder.object.schedule || @builder.object.build_schedule) do |b|
+
+      # Javascript element id
+      field_id = b.object_name.to_s.gsub(/\]\[|[^-a-zA-Z0-9:.]/,"_").sub(/_$/,"")
       
-      b.template.content_tag("div", {id: b.object_name.to_s.gsub(/\]\[|[^-a-zA-Z0-9:.]/,"_").sub(/_$/,"")}) do
+      b.template.content_tag("div", {id: field_id}) do
         
-        b.input(:rule, collection: ['singular', 'daily', 'weekly', 'monthly'], label_method: lambda { |i| I18n.t("schedulable.rules.#{i}") || i.capitalize }, label: false) << 
+        b.input(:rule, collection: ['singular', 'daily', 'weekly', 'monthly'], label_method: lambda { |v| I18n.t("schedulable.rules.#{v}", default: v.capitalize) }, label: false) << 
         
         template.content_tag("div", {data: {group: 'singular'}}) do
-          b.input :date
+          b.input :date, date_options
         end <<
         
         template.content_tag("div", {data: {group: 'weekly'}}) do
-          b.input :days, collection: weekdays, label_method: lambda { |v| ("&nbsp;" + daylabels[v]).html_safe}, as: :check_boxes
+          b.input :day, collection: weekdays, label_method: lambda { |v| ("&nbsp;" + day_labels[v]).html_safe}, boolean_style: :nested, as: :check_boxes
         end <<
         
         template.content_tag("div", {data: {group: 'monthly'}}) do
@@ -38,16 +59,18 @@ class ScheduleInput < SimpleForm::Inputs::Base
                   template.content_tag("td") <<
                   ['1st', '2nd', '3rd', '4th', 'last'].reduce(''.html_safe) { | x, item | 
                     x << template.content_tag("td") do 
-                       db.label(I18n.t("schedulable.monthly_week_names.#{item}") || item, required: false)
+                       db.label(I18n.t("schedulable.monthly_week_names.#{item}", default: item.capitalize) || item, required: false)
                     end
                   }
                 end <<
                 weekdays.reduce(''.html_safe) do | x, weekday | 
                   x << template.content_tag("tr") do 
                     template.content_tag("td") do
-                      db.label daylabels[weekday] || weekday, required: false
+                      db.label day_labels[weekday] || weekday, required: false
                     end << 
-                    db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, item_wrapper_tag: :td, checked: db.object.send(weekday)) 
+                    db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, checked: db.object.send(weekday)) do |cb|
+                      template.content_tag("td") { cb.check_box(class: "check_box") }
+                    end
                   end
                 end
               end <<
@@ -57,7 +80,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
         end << 
         
         template.content_tag("div", {data: {group: 'singular,daily,weekly,monthly'}}) do
-          b.input :time
+          b.input :time, date_options
         end << 
         
         (template.content_tag("div", {data: {group: 'daily,weekly,monthly'}}) do
@@ -65,7 +88,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
         end if input_options[:interval]) <<
         
         (template.content_tag("div", {data: {group: 'daily,weekly,monthly'}}) do
-          b.input :until
+          b.input :until, date_options
         end if input_options[:until]) <<
         
         (template.content_tag("div", {data: {group: 'daily,weekly,monthly'}}) do
@@ -77,25 +100,24 @@ class ScheduleInput < SimpleForm::Inputs::Base
       end <<
       
       template.javascript_tag(
-        "$(function() {" << 
-        "  var container = $(\"*[id='#{b.object_name.to_s.gsub(/\]\[|[^-a-zA-Z0-9:.]/,"_").sub(/_$/,"")}']\");" << 
-        "  var select = container.find(\"select[name*='rule']\");" << 
+        "(function() {" << 
+        "  var container = document.getElementById('#{field_id}');" << 
+        "  var select = container.querySelector(\"select[name*='rule']\", container);" << 
         "  function update() {" <<
         "    var value = this.value;" << 
-        "    container.find(\"*[data-group]\").each(function() {" <<
-        "      var groups = $(this).data('group').split(',');" <<
-        "      if ($.inArray(value, groups) >= 0) {" <<
-        "        $(this).css('display', '');" << 
+        "    [].slice.call(document.querySelectorAll(\"*[data-group]\", container)).forEach(function(elem) {" <<
+        "      var groups = elem.getAttribute('data-group').split(',');" <<
+        "      if (groups.indexOf(value) >= 0) {" <<
+        "        elem.style.display = ''" << 
         "      } else {" <<
-        "        $(this).css('display', 'none');" << 
+        "        elem.style.display = 'none'" << 
         "      }" <<
         "    });" <<
         "  }" << 
-        "  select.on('change', update);" <<
-        "  update.call(select[0]);" << 
-        "})"
+        "  select.addEventListener('change', update);" <<
+        "  update.call(select);" << 
+        "})()"
       )
-      
       
     end
     
