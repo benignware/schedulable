@@ -1,0 +1,32 @@
+<h1>Showing Event</h1>
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @event.name %>
+</p>
+
+<p>
+  <strong>Schedule:</strong>
+  <%= @event.schedule %>
+</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @event.remaining_event_occurrences.each do |event_occurrence| %>
+      <tr>
+        <td><%= event_occurrence.id.to_s %></td>
+        <td><%= event_occurrence.date.to_s %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<%= link_to 'Edit', edit_event_path(@event) %> |
+<%= link_to 'Back', events_path %>

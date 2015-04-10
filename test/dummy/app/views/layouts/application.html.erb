@@ -2,13 +2,20 @@
 <html>
 <head>
   <title>Dummy</title>
+  <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  
+  
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+  
+  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+  
   <%= csrf_meta_tags %>
 </head>
 <body>
-
-<%= yield %>
+  <div class="container">
+    <%= yield %>
+  </div>
 
 </body>
 </html>

@@ -10,4 +10,6 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+//= require bootstrap-datetimepicker
+//= require locales/bootstrap-datetimepicker.de
 //= require_tree .

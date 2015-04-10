@@ -2,7 +2,11 @@
 ENV["RAILS_ENV"] = "test"
 
 require File.expand_path("../dummy/config/environment.rb",  __FILE__)
+require 'factory_girl'
 require "rails/test_help"
+
+FactoryGirl.definition_file_paths << File.join(File.dirname(__FILE__), 'factories')
+FactoryGirl.find_definitions
 
 Rails.backtrace_cleaner.remove_silencers!
 
