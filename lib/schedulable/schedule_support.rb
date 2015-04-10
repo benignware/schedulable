@@ -17,7 +17,7 @@ module Schedulable
     end
     
     def self.param_names
-      [:id, :date, :time, :rule, :until, :count, :interval, days: [], day_of_week: [monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []]]
+      [:id, :date, :time, :rule, :until, :count, :interval, day: [], day_of_week: [monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []]]
     end
   
     private
@@ -26,6 +26,7 @@ module Schedulable
       
       self.rule||= "singular"
       self.interval||= 1
+      self.count||= 0
       
       date = self.date ? self.date.to_time : Time.now
       if self.time
@@ -48,8 +49,8 @@ module Schedulable
           rule.count(self.count.to_i)
         end
       
-        if self.days
-          days = self.days.reject(&:empty?)
+        if self.day
+          days = self.day.reject(&:empty?)
           if self.rule == 'weekly'
             days.each do |day|
               rule.day(day.to_sym)
