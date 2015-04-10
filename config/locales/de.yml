@@ -1,0 +1,29 @@
+de: 
+  model:
+    schedule: 'Zeitplan'
+    
+  activerecord:
+    attributes:
+      schedule: 
+        name: Name
+        rule: Regel
+        time: Uhrzeit
+        date: Datum
+        day: Wochentage
+        day_of_week: "Wochentage im Monat"
+        interval: Intervall
+        until: Wiederholen bis
+        count: Anzahl Wiederholungen
+        
+  schedulable: 
+    monthly_week_names:
+      1st: '1.'
+      2nd: '2.'
+      3rd: '3.'
+      4th: '4.'
+      last: 'L'
+    rules: 
+      singular: Einmalig
+      monthly: Monatlich
+      weekly: Wöchentlich
+      daily: Täglich
