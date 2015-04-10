@@ -1,0 +1,29 @@
+en:
+  model:
+    schedule: 'Schedule'
+    
+  activerecord:
+    attributes:
+      schedule:
+        name: Name
+        rule: Regel
+        time: Time
+        date: Date
+        rule: Rule
+        day: Weekdays
+        day_of_week: Weekdays of nth week
+        until: Repeat until
+        count: Repetition count
+        
+  schedulable: 
+    monthly_week_names:
+      1st: '1st'
+      2nd: '2nd'
+      3rd: '3rd'
+      4th: '4th'
+      last: 'Last'
+    rules: 
+      singular: Singular
+      monthly: Monthly
+      weekly: Weekly
+      daily: Daily
