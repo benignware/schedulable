@@ -1,9 +1,10 @@
 schedulable
 ===========
 
-Handling recurring events in rails. 
+> Handling recurring events in rails. 
 
-### Install
+
+## Install
 
 Put the following into your Gemfile and run `bundle install`
 ```cli
@@ -16,7 +17,7 @@ Install schedule migration and model
 rails g schedulable:install
 ```
 
-### Basic Usage
+## Basic Usage
 
 Create an event model
 ```cli
@@ -27,15 +28,13 @@ Configure your model to be schedulable:
 ```
 # app/models/event.rb
 class Event < ActiveRecord::Base
-  acts_as_schedulable
+  acts_as_schedulable :schedule
 end
 ```
 This will add an association to the model named 'schedule' which holds the schedule information. 
 
-Now you're ready to setup form fields for the schedule association using the fields_for-form_helper. 
-
-### Attributes
-The schedule object respects the following attributes:
+### Schedule Model
+The schedule-object respects the following attributes.
 <table>
   <tr>
     <th>Name</th><th>Type</th><th>Description</th>
@@ -50,10 +49,10 @@ The schedule object respects the following attributes:
     <td>time</td><td>Time</td><td>The time-attribute is used for singular events and also as starttime of the schedule</td>
   </tr>
   <tr>
-    <td>days</td><td>Array</td><td>An array of weekday-names, i.e. ['monday', 'wednesday']</td>
+    <td>day</td><td>Array</td><td>Day of week. An array of weekday-names, i.e. ['monday', 'wednesday']</td>
   </tr>
   <tr>
-    <td>day_of_week</td><td>Hash</td><td>A hash of weekday-names, containing arrays with indices, i.e. {:monday => [1, -1]} ('every first and last monday in month')</td>
+    <td>day_of_week</td><td>Hash</td><td>Day of nth week. A hash of weekday-names, containing arrays with indices, i.e. {:monday => [1, -1]} ('every first and last monday in month')</td>
   </tr>
   <tr>
     <td>interval</td><td>Integer</td><td>Specifies the interval of the recurring rule, i.e. every two weeks</td>
@@ -66,8 +65,83 @@ The schedule object respects the following attributes:
   </tr>
 </table>
 
-#### SimpleForm
-A custom input for simple_form is provided with the plugin. Make sure, you installed [SimpleForm](https://github.com/plataformatec/simple_form) and executed `rails generate simple_form:install`.
+## Forms
+
+Use schedulable's built-in helpers to setup your form.
+
+### FormBuilder
+
+Schedulable extends FormBuilder with a 'schedule_select'-helper and should therefore seamlessly integrate it with your existing views:
+
+```erb
+<%# app/views/events/_form.html.erb %>
+<%= form_for(@event) do |f| %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  
+  <div class="field">
+    <%= f.label :schedule %><br>
+    <%= f.schedule_select :schedule %>
+  </div>
+  
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+```
+
+#### Customize markup
+You can customize the generated markup by providing a hash of html-attributes as `style`-option. For wrappers, also provide a `tag`-attribute.
+* field_html
+* input_html
+* input_wrapper
+* label_html
+* label_wrapper
+* number_field_html
+* number_field_wrapper
+* date_select_html
+* date_select_wrapper
+* collection_select_html
+* collection_select_wrapper
+* collection_check_boxes_item_html
+* collection_check_boxes_item_wrapper
+
+#### Integrate with Bootstrap
+
+The schedulable-formhelper has built-in-support for Bootstrap. Simply point the style-option of schedule_input to `bootstrap` or set it as default in config. 
+
+```erb
+
+<%= f.schedule_select :schedule, style: :bootstrap %>
+```
+
+#### Options
+
+<table>
+  <tr>
+    <th>Name</th><th>Type</th><th>Description</th>
+  </tr>
+  <tr>
+  <tr>
+    <td>count</td><td>Boolean</td><td>Specifies whether to show 'count'-field</td>
+  </tr>
+  <tr>
+    <td>interval</td><td>Boolean</td><td>Specifies whether to show 'interval'-field</td>
+  </tr>
+  <tr>
+    <td>style</td><td>Hash</td><td>Specifies a hash of options to customize markup. By providing a string, you can point to a prefined set of options. Built-in styles are :bootstrap and :default.
+  </tr>
+  <tr>
+    <td>until</td><td>Boolean</td><td>Specifies whether to show 'until'-field</td>
+  </tr>
+</table>
+
+### SimpleForm
+Also provided with the plugin is a custom input for simple_form. Make sure, you installed [SimpleForm](https://github.com/plataformatec/simple_form) and executed `rails generate simple_form:install`.
+
 
 ```cli
 rails g schedulable:simple_form
@@ -92,11 +166,57 @@ rails g schedulable:simple_form
   </div>
   
 <% end %>
-
 ```
 
-#### Strong parameters
+#### Integrate with Bootstrap
 
+Simple Form has built-in support for Bootstrap as of version 3.0.0. 
+At time of writing it requires some a little extra portion of configuration to make it look as expected:
+
+```ruby
+# config/initializers/simple_form_bootstrap.rb
+
+# Inline date_select-wrapper for Bootstrap
+config.wrappers :horizontal_select_date, tag: 'div', class: 'form-group', error_class: 'has-error' do |b|
+  b.use :html5
+  b.optional :readonly
+  b.use :label, class: 'control-label'
+  b.wrapper tag: 'div', class: 'form-inline' do |ba|
+    ba.use :input, class: 'form-control'
+    ba.use :error, wrap_with: { tag: 'span', class: 'help-block' }
+    ba.use :hint,  wrap_with: { tag: 'p', class: 'help-block' }
+  end
+end
+
+# Include date_select-wrapper in mappings
+config.wrapper_mappings = {
+  datetime: :horizontal_select_date,
+  date: :horizontal_select_date,
+  time: :horizontal_select_date
+}
+```
+
+#### Options
+
+<table>
+  <tr>
+    <th>Name</th><th>Type</th><th>Description</th>
+  </tr>
+  <tr>
+  <tr>
+    <td>count</td><td>Boolean</td><td>Specifies whether to show 'count'-field</td>
+  </tr>
+  <tr>
+    <td>interval</td><td>Boolean</td><td>Specifies whether to show 'interval'-field</td>
+  </tr>
+  <tr>
+    <td>until</td><td>Boolean</td><td>Specifies whether to show 'until'-field</td>
+  </tr>
+</table>
+
+### Sanitize parameters
+
+Add schedule-attributes to the list of strong parameters in your controller:
 ```
 # app/controllers/event_controller.rb
 def event_params
@@ -104,50 +224,52 @@ def event_params
 end
 ```
 
-### IceCube
-The schedulable plugin uses ice_cube for calculating occurrences. 
-You can access ice_cube-methods via the schedule association:
+## Accessing IceCube
+You can access ice_cube-methods directly via the schedule association:
 
 ```ruby
 <%# app/views/events/show.html.erb %>
 <p>
   <strong>Schedule:</strong>
-  <%# prints out a human-friendly description of the schedule, such as %> 
+  <%# Prints out a human-friendly description of the schedule, such as %> 
   <%= @event.schedule %>
 </p>
 ```
 
 ```
-# prints all occurrences of the event until one year from now
+# Prints all occurrences of the event until one year from now
 puts @event.schedule.occurrences(Time.now + 1.year)
-# export to ical
+# Export to ical
 puts @event.schedule.to_ical
 ```
 See [IceCube](https://github.com/seejohnrun/ice_cube) for more information.
 
-### Internationalization
+## Internationalization
 
-At first you need to make sure you included all neccessary datetime translations. 
-A basic setup can be found [here](https://github.com/svenfuchs/rails-i18n/tree/master/rails/locale).
+Schedulable is bundled with translations in english and german which will be automatically initialized with your app.
+You can customize these messages by running the locale generator and edit the created yml-files:
 
-#### Localize Schedulable
-Use the locale-generator to create a .yml-file containing schedulable messages in english:
 ```cli
-rails g schedulable:locale en
+rails g schedulable:locale de
 ```
 
-Schedulable has also bundled messages in german. Use `de` as identifier.
+### Date- and Time-Messages
+Appropriate datetime translations should be included.
+Basic setup for many languages can be found here:
+[https://github.com/svenfuchs/rails-i18n/tree/master/rails/locale](https://github.com/svenfuchs/rails-i18n/tree/master/rails/locale).
 
-#### Localize Ice-Cube
-Internationalization of ice-cube itself can be integrated by using [this fork](https://github.com/joelmeyerhamme/ice_cube):
+
+### IceCube-Messages
+An internationalization-branch of ice_cube can be found here: 
+[https://github.com/joelmeyerhamme/ice_cube](https://github.com/joelmeyerhamme/ice_cube):
+
 ```ruby
 gem 'ice_cube', git: 'git://github.com/joelmeyerhamme/ice_cube.git', branch: 'international' 
 ```
 
+## Persist Occurrences
 
-### Persist event occurrences
-We need to have the occurrences persisted because we want to query the database for all occurrences of all instances of an event model or need to add additional attributes and functionality, such as allowing users to attend to a specific occurrence of an event.
-The schedulable gem handles this for you. 
+Schedulable allows for persisting occurrences and associate them with your model. 
 Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly:  
 
 ```ruby
@@ -161,19 +283,24 @@ class EventOccurrence < ActiveRecord::Base
 end
 ```
 
-Then you can simply declare your occurrences with the acts_as_schedule-method like this:
+Declare occurrence-model with the acts_as_schedule-method like this:
 ```
 # app/models/event.rb
 class Event < ActiveRecord::Base
-  acts_as_schedulable occurrences: :event_occurrences
+  acts_as_schedulable :schedule, occurrences: :event_occurrences
 end
 ```
-This will add a has_many-association with the name 'event_occurences' to your event-model. 
-Instances of remaining occurrences are built when the schedule is saved. 
-If the schedule has changed, the occurrences will be rebuilt if dates have also changed. Otherwise the time of the occurrence record will be adjusted to the new time.
-As in real life, previous occurrences will always stay untouched.
 
-#### Terminating and non-terminating events
+This will add a `event_occurrences`-association to the model as well as `remaining_event_occurrences` and `previous_event_occurrences`-associations.
+
+Instances of remaining occurrences are persisted when the parent-model is saved.
+ 
+If the schedule has changed, the occurrences will be rebuilt if dates have also changed. 
+Otherwise the time of the occurrence record will be adjusted to the new time.
+
+Previous occurrences stay untouched.
+
+### Terminating and non-terminating events
 An event is terminating if an until- or count-attribute has been specified. 
 Since non-terminating events have infinite occurrences, we cannot build all occurrences at once ;-)
 So we need to limit the number of occurrences in the database. 
@@ -181,7 +308,7 @@ By default this will be one year from now.
 This can be configured via the 'build_max_count' and 'build_max_period'-options. 
 See notes on configuration. 
 
-#### Automate build of occurrences
+### Automate build of occurrences
 Since we cannot build all occurrences at once, we will need a task that adds occurrences as time goes by. 
 Schedulable comes with a rake-task that performs an update on all scheduled occurrences. 
 
@@ -191,7 +318,7 @@ rake schedulable:build_occurrences
 
 You may add this task to crontab. 
 
-##### Using 'whenever' to schedule build of occurrences
+#### Using 'whenever' to schedule build of occurrences
 
 With the 'whenever' gem this can be easily achieved. 
 
@@ -222,7 +349,7 @@ Write to crontab:
 whenever -w
 ```
 
-### Configuration
+## Configuration
 Generate the configuration file
 
 ```cli
@@ -237,3 +364,7 @@ Schedulable.configure do |config|
   config.max_build_period = 1.year
 end
 ```
+
+
+## Changelog
+See the [Changelog](CHANGELOG.md) for recent enhancements, bugfixes and deprecations.
