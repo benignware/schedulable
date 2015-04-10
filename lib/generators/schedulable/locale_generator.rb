@@ -8,7 +8,7 @@ module Schedulable
       
       def create_locale
         puts 'install locale'
-        template "locale/schedulable.#{locale}.yml", "config/locales/schedulable.#{locale}.yml"
+        template "../../../../config/locales/#{locale}.yml", "config/locales/schedulable.#{locale}.yml"
       end
       
     end
