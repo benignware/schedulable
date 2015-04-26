@@ -8,7 +8,8 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
- *= require bootstrap-datetimepicker
+ *= require bootstrap/dist/css/bootstrap.min
+ *= require eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min
  *= require_self
  * require scaffold
  *= require events

@@ -10,6 +10,8 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require bootstrap-datetimepicker
-//= require locales/bootstrap-datetimepicker.de
+//= require jquery/dist/jquery.min
+//= require moment/min/moment.min
+//= require moment/min/locales.min
+//= require eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min
 //= require_tree .

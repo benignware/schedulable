@@ -1,0 +1,20 @@
+{
+  "name": "dummy",
+  "version": "0.0.7",
+  "homepage": "https://github.com/benignware/schedulable",
+  "authors": [
+    "Rafael Nowrotek <mail@benignware.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "eonasdan-bootstrap-datetimepicker": "~4.7.14",
+    "bootstrap": "~3.3.4"
+  }
+}

@@ -14,4 +14,4 @@ gemspec
 # gem 'debugger'
 
 gem 'simple_form'
-gem 'smalot-bootstrap-datetimepicker-rails'
+gem 'date_picker'
