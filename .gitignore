@@ -20,3 +20,6 @@ pkg
 
 # Dummy App assets
 test/dummy/vendor/assets/components
+
+# Log files
+test/dummy/log
