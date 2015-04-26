@@ -10,7 +10,8 @@ Master
 
 #### bugfix
 
-* Fixed wrong day labels in form input
+* Fixed wrong day labels in form input #5
+* Fixed deprecated group-syntax in rake task #6
 
 #### deprecation
 
