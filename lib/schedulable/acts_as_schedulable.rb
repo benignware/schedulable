@@ -56,7 +56,6 @@ module Schedulable
               # build occurrences for all events
               # TODO: only invalid events
               schedulables = self.all
-              puts "build occurrences for #{schedulables.length} #{self.name.tableize}" 
               schedulables.each do |schedulable| 
                 schedulable.send("build_#{occurrences_association}")
               end
@@ -72,28 +71,22 @@ module Schedulable
             now = Time.now
             
             # TODO: Make configurable 
-            occurrence_attribute = :date
+            occurrence_attribute = :date 
             
             schedulable = schedule.schedulable
-            terminating = schedule.until.present? || schedule.count.present? && schedule.count > 0
-
+            terminating = schedule.rule != 'singular' && (schedule.until.present? || schedule.count.present? && schedule.count > 1)
+            
             max_period = Schedulable.config.max_build_period || 1.year
             max_date = now + max_period
-            if terminating
-              max_date = [max_date, schedule.last.to_time].min
-            end
+            
+            max_date = schedule.last.present? ? [max_date, schedule.last.to_time].min : max_date
             
             max_count = Schedulable.config.max_build_count || 100
-            max_count = terminating ? [max_count, schedule.remaining_occurrences.count].min : max_count
+            max_count = schedule.remaining_occurrences.present? && schedule.remaining_occurrences.any? ? [max_count, schedule.remaining_occurrences.count].min : max_count
 
-            # Get schedule occurrences
-            if max_count > 0
-              # Get next occurrences within count range
-              occurrences = schedule.next_occurrences(max_count)
-            end
-            
-            if !occurrences || occurrences.last.present? && occurrences.last.to_time > max_date 
-              # Get next occurrences within date range
+            if schedule.rule != 'singular'
+              
+              # Get schedule occurrences
               all_occurrences = schedule.occurrences(max_date)
               occurrences = []
               # Filter future dates
@@ -102,6 +95,10 @@ module Schedulable
                   occurrences << occurrence_date
                 end
               end
+            
+            else
+              singular_date_time = schedule.date.to_datetime + schedule.time.seconds_since_midnight.seconds
+              occurrences = [singular_date_time]
             end
             
             # Build occurrences
@@ -118,7 +115,7 @@ module Schedulable
               
               if existing_record.present?
                 # Overwrite existing record
-                if !occurrences_records.update(existing_record, date: occurrence.to_datetime)
+                if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
                   puts 'an error occurred while saving an existing occurrence record'
                 end
               else
@@ -136,7 +133,8 @@ module Schedulable
             occurrences_records.each do |occurrence_record|
               if occurrence_record.date > now
                 # Destroy occurrence if date or count lies beyond range
-                if occurrence_record.date > max_date || max_count > 0 && record_count > max_count
+                
+                if schedule.rule == 'singular' && record_count > 0 && (occurrence_record.date > max_date || max_count > 1 && record_count > max_count)
                   occurrences_records.destroy(occurrence_record)
                 end
                 record_count = record_count + 1
