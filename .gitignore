@@ -17,3 +17,6 @@ test/tmp
 test/version_tmp
 tmp
 pkg
+
+# Dummy App assets
+test/dummy/vendor/assets/components

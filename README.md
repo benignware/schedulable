@@ -356,12 +356,15 @@ Generate the configuration file
 rails g schedulable:config
 ```
 
-Open 'config/initializers/schedulable.rb' and edit options as you need:
+Open 'config/initializers/schedulable.rb' and edit options as needed:
 
 ```ruby
 Schedulable.configure do |config|
   config.max_build_count = 0
   config.max_build_period = 1.year
+  config.form_helper = {
+    style: :default
+  }
 end
 ```
 
