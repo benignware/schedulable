@@ -27,9 +27,9 @@ class ScheduleInput < SimpleForm::Inputs::Base
     input_html_options[:type] ||= input_type if html5?
     
     # Input options
-    input_options[:interval] = !input_options[:interval].nil? ? input_options[:interval] : true
-    input_options[:until] = !input_options[:until].nil? ? input_options[:until] : true
-    input_options[:count] = !input_options[:count].nil? ? input_options[:count] : true
+    input_options[:interval] = !input_options[:interval].nil? ? input_options[:interval] : false
+    input_options[:until] = !input_options[:until].nil? ? input_options[:until] : false
+    input_options[:count] = !input_options[:count].nil? ? input_options[:count] : false
     
 
     @builder.simple_fields_for(:schedule, @builder.object.schedule || @builder.object.build_schedule) do |b|
