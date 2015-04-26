@@ -15,3 +15,6 @@ gemspec
 
 gem 'simple_form'
 gem 'date_picker'
+gem 'database_cleaner'
+gem 'sqlite3'
+gem 'factory_girl_rails', "~> 4.0"

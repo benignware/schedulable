@@ -18,8 +18,6 @@ Gem::Specification.new do |s|
   s.add_dependency "rails", ">= 4.0.3"
   s.add_dependency "ice_cube"
   
-  s.add_development_dependency 'database_cleaner'
-  s.add_development_dependency 'sqlite3'
-  s.add_development_dependency 'factory_girl_rails', "~> 4.0"
+  
 
 end
