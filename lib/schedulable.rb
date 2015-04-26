@@ -1,5 +1,6 @@
 require 'schedulable/railtie' if defined? ::Rails::Railtie
 require 'schedulable/acts_as_schedulable'
+require 'schedulable/schedule'
 require 'schedulable/schedule_support'
 require 'schedulable/form_helper'
 require 'i18n'

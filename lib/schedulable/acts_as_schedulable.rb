@@ -79,7 +79,9 @@ module Schedulable
 
             max_period = Schedulable.config.max_build_period || 1.year
             max_date = now + max_period
-            max_date = schedule.last.present? && terminating ? [max_date, schedule.last.to_time].min : max_date
+            if terminating
+              max_date = [max_date, schedule.last.to_time].min
+            end
             
             max_count = Schedulable.config.max_build_count || 100
             max_count = terminating ? [max_count, schedule.remaining_occurrences.count].min : max_count
