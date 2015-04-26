@@ -1,5 +1,3 @@
-.project
-.README.md.html
 *.gem
 *.rbc
 .bundle
@@ -17,6 +15,12 @@ test/tmp
 test/version_tmp
 tmp
 pkg
+
+# Eclipse
+.project
+
+# Markdown preview
+.README.md.html
 
 # Dummy App assets
 test/dummy/vendor/assets/components
