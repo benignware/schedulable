@@ -1,3 +1,32 @@
+<%= form_for(@event) do |f| %>
+  <% if @event.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@event.errors.count, "error") %> prohibited this event from being saved:</h2>
+
+      <ul>
+      <% @event.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field form-group">
+    <%= f.label :name %><br>
+    <%= f.text_field :name, class: 'form-control' %>
+  </div>
+  
+  <div class="field form-group">
+    <%= f.label :schedule %><br>
+    <%= f.schedule_select :schedule, style: :bootstrap, until: true %>
+  </div>
+  
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+
+<h2>Simple Form</h2>
 <%= simple_form_for(@event) do |f| %>
   <% if @event.errors.any? %>
     <div id="error_explanation">
@@ -16,7 +45,7 @@
   </div>
   
   <div class="field">
-    <%= f.input :schedule, as: :schedule %><br>
+    <%= f.input :schedule, as: :schedule, until: true %><br>
   </div>
   
   <div class="actions">
