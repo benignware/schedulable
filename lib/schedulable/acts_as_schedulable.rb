@@ -89,10 +89,14 @@ module Schedulable
               # Get schedule occurrences
               all_occurrences = schedule.occurrences(max_date)
               occurrences = []
-              # Filter future dates
-              all_occurrences.each do |occurrence_date|
+              # Filter valid dates
+              all_occurrences.each_with_index do |occurrence_date, index|
                 if occurrence_date.present? && occurrence_date.to_time > now
-                  occurrences << occurrence_date
+                  if occurrence_date.to_time < max_date && index < max_count
+                    occurrences << occurrence_date
+                  else
+                    max_date = [max_date, occurrence_date].min
+                  end
                 end
               end
             
@@ -103,23 +107,38 @@ module Schedulable
             
             # Build occurrences
             
-            # Get existing records
-            occurrences_records = schedulable.send(occurrences_association)
+            update_mode = :datetime
+            
+            # Get existing remaining records
+            occurrences_records = schedulable.send("remaining_#{occurrences_association}")
 
             # build occurrences
             existing_record = nil
             occurrences.each_with_index do |occurrence, index|
               
               # Pull an existing record
-              existing_record = occurrences_records[index]
               
-              if existing_record.present?
-                # Overwrite existing record
-                if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
-                  puts 'an error occurred while saving an existing occurrence record'
+              if update_mode == :index
+                existing_records = [occurrences_records[index]]
+              elsif update_mode == :datetime
+                existing_records = occurrences_records.select { |record|
+                  record.date.to_datetime == occurrence.to_datetime
+                }
+              else
+                existing_records = []
+              end
+
+              if existing_records.any?
+                # Overwrite existing records
+                existing_records.each do |existing_record|
+                  puts 'update existing record:  ' + existing_record.to_s + ' --- ' + occurrence.to_datetime.to_s
+                  if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
+                    puts 'an error occurred while saving an existing occurrence record'
+                  end
                 end
               else
                 # Create new record
+                puts 'creatwe new record:  ' + occurrence.to_datetime.to_s
                 if !occurrences_records.create(date: occurrence.to_datetime)
                   puts 'an error occurred while creating an occurrence record'
                 end
@@ -128,13 +147,14 @@ module Schedulable
             
             
             # Clean up unused remaining occurrences 
+            occurrences_records = schedulable.send("remaining_#{occurrences_association}")
             record_count = 0
-            
             occurrences_records.each do |occurrence_record|
               if occurrence_record.date > now
                 # Destroy occurrence if date or count lies beyond range
-                
-                if schedule.rule == 'singular' && record_count > 0 && (occurrence_record.date > max_date || max_count > 1 && record_count > max_count)
+                puts 'destroy??' + occurrence_record.date.to_s + " -> " + schedule.occurring_at?(occurrence_record.date).to_s
+                if schedule.rule != 'singular' && (!schedule.occurs_on?(occurrence_record.date.to_date) || !schedule.occurring_at?(occurrence_record.date.to_time) || occurrence_record.date > max_date) || schedule.rule == 'singular' && record_count > 0
+                  puts 'destroy unused record' + occurrence_record.date.to_s
                   occurrences_records.destroy(occurrence_record)
                 end
                 record_count = record_count + 1
