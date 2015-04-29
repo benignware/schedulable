@@ -8,7 +8,7 @@ module Schedulable
       belongs_to :schedulable, polymorphic: true
     
       after_initialize :init_schedule
-      after_save :update_schedule
+      before_save :update_schedule
     
       def to_icecube
         return @schedule
