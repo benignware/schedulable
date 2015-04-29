@@ -131,14 +131,12 @@ module Schedulable
               if existing_records.any?
                 # Overwrite existing records
                 existing_records.each do |existing_record|
-                  puts 'update existing record:  ' + existing_record.to_s + ' --- ' + occurrence.to_datetime.to_s
                   if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
                     puts 'an error occurred while saving an existing occurrence record'
                   end
                 end
               else
                 # Create new record
-                puts 'creatwe new record:  ' + occurrence.to_datetime.to_s
                 if !occurrences_records.create(date: occurrence.to_datetime)
                   puts 'an error occurred while creating an occurrence record'
                 end
@@ -152,9 +150,7 @@ module Schedulable
             occurrences_records.each do |occurrence_record|
               if occurrence_record.date > now
                 # Destroy occurrence if date or count lies beyond range
-                puts 'destroy??' + occurrence_record.date.to_s + " -> " + schedule.occurring_at?(occurrence_record.date).to_s
                 if schedule.rule != 'singular' && (!schedule.occurs_on?(occurrence_record.date.to_date) || !schedule.occurring_at?(occurrence_record.date.to_time) || occurrence_record.date > max_date) || schedule.rule == 'singular' && record_count > 0
-                  puts 'destroy unused record' + occurrence_record.date.to_s
                   occurrences_records.destroy(occurrence_record)
                 end
                 record_count = record_count + 1
