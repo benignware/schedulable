@@ -295,9 +295,7 @@ This will add a `event_occurrences`-association to the model as well as `remaini
 
 Instances of remaining occurrences are persisted when the parent-model is saved.
  
-If the schedule has changed, the occurrences will be rebuilt if dates have also changed. 
-Otherwise the time of the occurrence record will be adjusted to the new time.
-
+Occurrences records will be reused if their datetime matches the saved schedule. 
 Previous occurrences stay untouched.
 
 ### Terminating and non-terminating events
