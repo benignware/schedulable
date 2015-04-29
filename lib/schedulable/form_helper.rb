@@ -26,6 +26,8 @@ module Schedulable
       
       def schedule_select(attribute, input_options = {})
 
+        template = @template
+
         weekdays = Date::DAYNAMES.map(&:downcase)
         weekdays = weekdays.slice(1..7) << weekdays.slice(0)
         
@@ -38,8 +40,10 @@ module Schedulable
         month_names = month_names.blank? ? Date::MONTHNAMES : month_names
 
         # Pass in default order when missing in translations
-        date_order = I18n.t('date.order', default: "")
-        date_order = date_order.blank? ? [:year, :month, :day] : date_order 
+        date_order = I18n.t('date.order', default: [:year, :month, :day])
+        date_order = date_order.map { |order|
+          order.to_sym
+        }
         
         date_options = {
           order: date_order,
@@ -106,7 +110,7 @@ module Schedulable
           self.fields_for(attribute, @object.send(attribute.to_s) || @object.send("build_" + attribute.to_s)) do |f|
           
             @template.content_tag("div", style_options[:field_html]) do
-              select_output = f.collection_select(:rule, ['singular', 'daily', 'weekly', 'monthly'], lambda { |v| return v}, lambda { |v| I18n.t("schedulable.rules.#{v}", default: v.capitalize) }, options = {}, style_options[:collection_select_html])
+              select_output = f.collection_select(:rule, ['singular', 'daily', 'weekly', 'monthly'], lambda { |v| return v}, lambda { |v| I18n.t("schedulable.rules.#{v}", default: v.capitalize) }, {include_blank: false}, style_options[:collection_select_html])
               content_wrap(@template, select_output, style_options[:collection_select_wrapper])
             end <<
             
@@ -172,13 +176,13 @@ module Schedulable
           
         end <<
         
-        @template.javascript_tag(
+        template.javascript_tag(
           "(function() {" << 
-          "  var container = document.getElementById('#{field_id}');" << 
-          "  var select = container.querySelector(\"select[name*='rule']\", container);" << 
+          "  var container = document.querySelectorAll('##{field_id}'); container = container[container.length - 1]; console.log('container', container); " << 
+          "  var select = container.querySelector(\"select[name*='rule']\"); console.log(select); " << 
           "  function update() {" <<
           "    var value = this.value;" << 
-          "    [].slice.call(document.querySelectorAll(\"*[data-group]\", container)).forEach(function(elem) {" <<
+          "    [].slice.call(container.querySelectorAll(\"*[data-group]\")).forEach(function(elem) { " <<
           "      var groups = elem.getAttribute('data-group').split(',');" <<
           "      if (groups.indexOf(value) >= 0) {" <<
           "        elem.style.display = ''" << 
@@ -187,11 +191,10 @@ module Schedulable
           "      }" <<
           "    });" <<
           "  }" << 
-          "  select.addEventListener('change', update);" <<
+          "  if (jQuery) { jQuery(select).on('change', update); } else { select.addEventListener('change', update); }" <<
           "  update.call(select);" << 
           "})()"
         )
-        
         
       end
       
