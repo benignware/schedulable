@@ -2,6 +2,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
   
   def input(wrapper_options)
     
+    
     # I18n
     weekdays = Date::DAYNAMES.map(&:downcase)
     weekdays = weekdays.slice(1..7) << weekdays.slice(0)
@@ -22,7 +23,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
       order: date_order,
       use_month_names: month_names
     }
-     
+    
     # Input html options
     input_html_options[:type] ||= input_type if html5?
     
@@ -30,7 +31,6 @@ class ScheduleInput < SimpleForm::Inputs::Base
     input_options[:interval] = !input_options[:interval].nil? ? input_options[:interval] : false
     input_options[:until] = !input_options[:until].nil? ? input_options[:until] : false
     input_options[:count] = !input_options[:count].nil? ? input_options[:count] : false
-    
 
     @builder.simple_fields_for(:schedule, @builder.object.schedule || @builder.object.build_schedule) do |b|
 
@@ -39,7 +39,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
       
       b.template.content_tag("div", {id: field_id}) do
         
-        b.input(:rule, collection: ['singular', 'daily', 'weekly', 'monthly'], label_method: lambda { |v| I18n.t("schedulable.rules.#{v}", default: v.capitalize) }, label: false) << 
+        b.input(:rule, collection: ['singular', 'daily', 'weekly', 'monthly'], label_method: lambda { |v| I18n.t("schedulable.rules.#{v}", default: v.capitalize) }, label: false, include_blank: false) << 
         
         template.content_tag("div", {data: {group: 'singular'}}) do
           b.input :date, date_options
@@ -54,26 +54,22 @@ class ScheduleInput < SimpleForm::Inputs::Base
           b.simple_fields_for :day_of_week, OpenStruct.new(b.object.day_of_week || {}) do |db|
             template.content_tag("div", class: 'form-group' + (b.object.errors[:day_of_week].any? ? " has-error" : "")) do
               b.label(:day_of_week, error: true) << 
-              template.content_tag("table", style: 'min-width: 280px') do
-                template.content_tag("tr") do
-                  template.content_tag("td") <<
-                  ['1st', '2nd', '3rd', '4th', 'last'].reduce(''.html_safe) { | x, item | 
-                    x << template.content_tag("td") do 
-                       db.label(I18n.t("schedulable.monthly_week_names.#{item}", default: item.capitalize) || item, required: false)
-                    end
+              template.content_tag("div", nil, style: 'min-width: 280px; display: table') do
+                template.content_tag("div", nil, style: 'display: table-row') do
+                  template.content_tag("span", nil, style: 'display: table-cell;') <<
+                  ['1st', '2nd', '3rd', '4th', 'last'].reduce(''.html_safe) { | content, item | 
+                    content << template.content_tag("span", I18n.t("schedulable.monthly_week_names.#{item}", default: item.to_s), style: 'display: table-cell; text-align: center')
                   }
                 end <<
-                weekdays.reduce(''.html_safe) do | x, weekday | 
-                  x << template.content_tag("tr") do 
-                    template.content_tag("td") do
-                      db.label day_labels[weekday] || weekday, required: false
-                    end << 
-                    db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, checked: db.object.send(weekday)) do |cb|
-                      template.content_tag("td") { cb.check_box(class: "check_box") }
-                    end
+                weekdays.reduce(''.html_safe) do | content, weekday | 
+                  content << template.content_tag("div", nil, style: 'display: table-row') do 
+                    template.content_tag("span", day_labels[weekday] || weekday, style: 'display: table-cell') <<
+                    db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, checked: db.object.send(weekday), item_wrapper_tag: nil) do |cb|
+                      template.content_tag("span", cb.check_box(), style: 'display: table-cell; text-align: center')
+                    end 
                   end
                 end
-              end <<
+              end << 
               b.error(:day_of_week)
             end
           end
@@ -101,11 +97,11 @@ class ScheduleInput < SimpleForm::Inputs::Base
       
       template.javascript_tag(
         "(function() {" << 
-        "  var container = document.getElementById('#{field_id}');" << 
-        "  var select = container.querySelector(\"select[name*='rule']\", container);" << 
+        "  var container = document.querySelectorAll('##{field_id}'); container = container[container.length - 1]; console.log('container', container); " << 
+        "  var select = container.querySelector(\"select[name*='rule']\"); console.log(select); " << 
         "  function update() {" <<
         "    var value = this.value;" << 
-        "    [].slice.call(document.querySelectorAll(\"*[data-group]\", container)).forEach(function(elem) {" <<
+        "    [].slice.call(container.querySelectorAll(\"*[data-group]\")).forEach(function(elem) { " <<
         "      var groups = elem.getAttribute('data-group').split(',');" <<
         "      if (groups.indexOf(value) >= 0) {" <<
         "        elem.style.display = ''" << 
@@ -114,7 +110,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
         "      }" <<
         "    });" <<
         "  }" << 
-        "  select.addEventListener('change', update);" <<
+        "  if (jQuery) { jQuery(select).on('change', update); } else { select.addEventListener('change', update); }" <<
         "  update.call(select);" << 
         "})()"
       )
