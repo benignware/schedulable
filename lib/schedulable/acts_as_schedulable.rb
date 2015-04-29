@@ -64,6 +64,8 @@ module Schedulable
         
           define_method "build_#{occurrences_association}" do 
             
+            puts 'build occurrences...'
+            
             # build occurrences for events
             
             schedule = self.send(name)
@@ -79,10 +81,10 @@ module Schedulable
             max_period = Schedulable.config.max_build_period || 1.year
             max_date = now + max_period
             
-            max_date = schedule.last.present? ? [max_date, schedule.last.to_time].min : max_date
+            max_date = terminating ? [max_date, schedule.last.to_time].min : max_date
             
             max_count = Schedulable.config.max_build_count || 100
-            max_count = schedule.remaining_occurrences.present? && schedule.remaining_occurrences.any? ? [max_count, schedule.remaining_occurrences.count].min : max_count
+            max_count = terminating && schedule.remaining_occurrences.any? ? [max_count, schedule.remaining_occurrences.count].min : max_count
 
             if schedule.rule != 'singular'
               
@@ -106,8 +108,7 @@ module Schedulable
             end
             
             # Build occurrences
-            
-            update_mode = :datetime
+            update_mode = Schedulable.config.update_mode || :datetime
             
             # Get existing remaining records
             occurrences_records = schedulable.send("remaining_#{occurrences_association}")

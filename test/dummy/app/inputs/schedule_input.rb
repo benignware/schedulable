@@ -75,21 +75,33 @@ class ScheduleInput < SimpleForm::Inputs::Base
           end
         end << 
         
-        template.content_tag("div", {data: {group: 'singular,daily,weekly,monthly'}}) do
+        template.content_tag("div", data: {group: 'singular,daily,weekly,monthly'}) do
           b.input :time, date_options
         end << 
         
-        (template.content_tag("div", {data: {group: 'daily,weekly,monthly'}}) do
-          b.input :interval
-        end if input_options[:interval]) <<
+        (if input_options[:interval]
+          template.content_tag("div", data: {group: 'daily,weekly,monthly'}) do
+            b.input :interval
+          end
+        else
+          b.input(:interval, as: :hidden, input_html: {value: 1})
+        end) <<
         
-        (template.content_tag("div", {data: {group: 'daily,weekly,monthly'}}) do
-          b.input :until, date_options
-        end if input_options[:until]) <<
+        (if input_options[:until]
+          template.content_tag("div", data: {group: 'daily,weekly,monthly'}) do
+            b.input :until, date_options
+          end
+        else
+          b.input(:until, as: :hidden, input_html: {value: nil})
+        end) <<
         
-        (template.content_tag("div", {data: {group: 'daily,weekly,monthly'}}) do
-          b.input :count
-        end if input_options[:count])
+        if input_options[:count]
+          template.content_tag("div", data: {group: 'daily,weekly,monthly'}) do
+            b.input :count
+          end
+        else
+           b.input(:count, as: :hidden, input_html: {value: 0})
+        end
         
         
         

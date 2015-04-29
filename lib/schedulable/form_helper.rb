@@ -158,20 +158,33 @@ module Schedulable
               content_wrap(@template, f.time_select(:time, date_options, style_options[:date_select_html]), style_options[:date_select_wrapper])
             end <<
             
-            (@template.content_tag("div", style_options[:field_html].merge({data: {group: 'daily,weekly,monthly'}})) do
-              content_wrap(@template, f.label(:interval, style_options[:label_html]), style_options[:label_wrapper]) <<
-              content_wrap(@template, f.number_field(:interval, style_options[:number_field_html]), style_options[:number_field_wrapper])
-            end if input_options[:interval] == true) <<
+            (if input_options[:interval]
+              @template.content_tag("div", style_options[:field_html].merge({data: {group: 'daily,weekly,monthly'}})) do
+                content_wrap(@template, f.label(:interval, style_options[:label_html]), style_options[:label_wrapper]) <<
+                content_wrap(@template, f.number_field(:interval, style_options[:number_field_html]), style_options[:number_field_wrapper])
+              end
+            else
+              f.hidden_field(:interval, value: 1)
+            end) <<
             
-            (@template.content_tag("div", style_options[:field_html].merge({data: {group: 'daily,weekly,monthly'}})) do
-              content_wrap(@template, f.label(:until, style_options[:label_html]), style_options[:label_wrapper]) <<
-              content_wrap(@template, f.datetime_select(:until, date_options, style_options[:date_select_html]), style_options[:date_select_wrapper])
-            end if input_options[:until] == true) <<
+            (if input_options[:until]
+              @template.content_tag("div", style_options[:field_html].merge({data: {group: 'daily,weekly,monthly'}})) do
+                content_wrap(@template, f.label(:until, style_options[:label_html]), style_options[:label_wrapper]) <<
+                content_wrap(@template, f.datetime_select(:until, date_options, style_options[:date_select_html]), style_options[:date_select_wrapper])
+              end
+            else
+              f.hidden_field(:until, value: nil)
+            end) <<
             
-            (@template.content_tag("div", style_options[:field_html].merge({data: {group: 'daily,weekly,monthly'}})) do
-              content_wrap(@template, f.label(:count, style_options[:label_html]), style_options[:label_wrapper]) <<
-              content_wrap(@template, f.number_field(:count, style_options[:number_field_html]), style_options[:number_field_wrapper])
-            end if input_options[:count] == true)
+            if input_options[:count]
+              @template.content_tag("div", style_options[:field_html].merge({data: {group: 'daily,weekly,monthly'}})) do
+                content_wrap(@template, f.label(:count, style_options[:label_html]), style_options[:label_wrapper]) <<
+                content_wrap(@template, f.number_field(:count, style_options[:number_field_html]), style_options[:number_field_wrapper])
+              end
+            else
+               f.hidden_field(:count, value: 0)
+            end
+            
           end
           
         end <<
