@@ -109,8 +109,8 @@ class ScheduleInput < SimpleForm::Inputs::Base
       
       template.javascript_tag(
         "(function() {" << 
-        "  var container = document.querySelectorAll('##{field_id}'); container = container[container.length - 1]; console.log('container', container); " << 
-        "  var select = container.querySelector(\"select[name*='rule']\"); console.log(select); " << 
+        "  var container = document.querySelectorAll('##{field_id}'); container = container[container.length - 1];" << 
+        "  var select = container.querySelector(\"select[name*='rule']\");" << 
         "  function update() {" <<
         "    var value = this.value;" << 
         "    [].slice.call(container.querySelectorAll(\"*[data-group]\")).forEach(function(elem) { " <<
