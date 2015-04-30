@@ -9,7 +9,13 @@ module Schedulable
     
       after_initialize :init_schedule
       before_save :update_schedule
-    
+      
+      validates_presence_of :rule
+      validates_presence_of :time
+      validates_presence_of :date, if: Proc.new { |schedule| schedule.rule == 'singular' }
+      validate :validate_day, if: Proc.new { |schedule| schedule.rule == 'weekly' }
+      validate :validate_day_of_week, if: Proc.new { |schedule| schedule.rule == 'monthly' }
+      
       def to_icecube
         return @schedule
       end
@@ -69,6 +75,30 @@ module Schedulable
         end
         
       end
+      
+      private
+      
+      def validate_day
+        day.reject! { |c| c.empty? }
+        if !day.any?
+          errors.add(:day, :empty)
+        end
+      end
+      
+      def validate_day_of_week
+        any = false
+        day_of_week.each { |key, value|
+          value.reject! { |c| c.empty? }
+          if value.length > 0
+            any = true
+            break
+          end
+        }
+        if !any
+          errors.add(:day_of_week, :empty)
+        end
+      end
+      
       
       def init_schedule()
         
