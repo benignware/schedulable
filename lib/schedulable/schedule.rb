@@ -7,7 +7,7 @@ module Schedulable
     
       belongs_to :schedulable, polymorphic: true
     
-      after_initialize :init_schedule
+      after_initialize :update_schedule
       before_save :update_schedule
       
       validates_presence_of :rule
@@ -35,7 +35,11 @@ module Schedulable
       end
     
       def update_schedule()
-
+        
+        self.rule||= "singular"
+        self.interval||= 1
+        self.count||= 0
+        
         date = self.date ? self.date.to_time : Time.now
         if self.time
           date = date.change({hour: self.time.hour, min: self.time.min})
@@ -97,18 +101,6 @@ module Schedulable
         if !any
           errors.add(:day_of_week, :empty)
         end
-      end
-      
-      
-      def init_schedule()
-        
-        self.rule||= "singular"
-        self.interval||= 1
-        self.count||= 0
-        
-        @schedule = IceCube::Schedule.new()
-        
-        self.update_schedule()
       end
     end
   end
