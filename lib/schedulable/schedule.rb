@@ -106,7 +106,7 @@ module Schedulable
         self.interval||= 1
         self.count||= 0
         
-        @schedule = IceCube::Schedule.new(date)
+        @schedule = IceCube::Schedule.new()
         
         self.update_schedule()
       end
