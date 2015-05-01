@@ -1,4 +1,4 @@
-Master
+v0.0.8
 ------
 
 #### enhancements
