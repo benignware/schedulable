@@ -25,7 +25,7 @@ module Schedulable
       end
       
       def method_missing(meth, *args, &block)
-        if @schedule
+        if @schedule.present? && @schedule.respond_to?(meth)
           @schedule.send(meth, *args, &block)
         end
       end
