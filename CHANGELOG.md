@@ -2,7 +2,8 @@ Master
 ------
 
 #### Bugfix
-Removed undefined date argument in init schedule
+* Fixed undefined date argument in init schedule
+* Fixed simple-form wrapper labels messing up monthly layout
 
 v0.0.8
 ------
