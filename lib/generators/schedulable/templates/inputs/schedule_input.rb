@@ -64,8 +64,8 @@ class ScheduleInput < SimpleForm::Inputs::Base
                 weekdays.reduce(''.html_safe) do | content, weekday | 
                   content << template.content_tag("div", nil, style: 'display: table-row') do 
                     template.content_tag("span", day_labels[weekday] || weekday, style: 'display: table-cell') <<
-                    db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, checked: db.object.send(weekday), item_wrapper_tag: nil) do |cb|
-                      template.content_tag("span", cb.check_box(), style: 'display: table-cell; text-align: center')
+                    db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, boolean_style: :inline, label: false, checked: db.object.send(weekday), inline_label: false, item_wrapper_tag: nil) do |cb|
+                      template.content_tag("span", style: 'display: table-cell; text-align: center;') { cb.check_box(class: "check_box") }
                     end 
                   end
                 end
