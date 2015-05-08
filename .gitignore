@@ -21,6 +21,7 @@ pkg
 
 # Markdown preview
 .README.md.html
+.CHANGELOG.md.html
 
 # Dummy App assets
 test/dummy/vendor/assets/components
