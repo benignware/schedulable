@@ -87,7 +87,6 @@ module Schedulable
             max_count = terminating && schedule.remaining_occurrences.any? ? [max_count, schedule.remaining_occurrences.count].min : max_count
 
             if schedule.rule != 'singular'
-              
               # Get schedule occurrences
               all_occurrences = schedule.occurrences(max_date)
               occurrences = []
@@ -101,7 +100,6 @@ module Schedulable
                   end
                 end
               end
-            
             else
               singular_date_time = schedule.date.to_datetime + schedule.time.seconds_since_midnight.seconds
               occurrences = [singular_date_time]
@@ -109,6 +107,11 @@ module Schedulable
             
             # Build occurrences
             update_mode = Schedulable.config.update_mode || :datetime
+            
+            # Always use index as base for singular events
+            if schedule.rule == 'singular'
+              update_mode = :index
+            end
             
             # Get existing remaining records
             occurrences_records = schedulable.send("remaining_#{occurrences_association}")
@@ -118,7 +121,7 @@ module Schedulable
             occurrences.each_with_index do |occurrence, index|
               
               # Pull an existing record
-              
+              puts 'pull existing record...' + index.to_s
               if update_mode == :index
                 existing_records = [occurrences_records[index]]
               elsif update_mode == :datetime
@@ -138,6 +141,7 @@ module Schedulable
                 end
               else
                 # Create new record
+                puts 'create occurrence at ' + occurrence.to_datetime.to_s
                 if !occurrences_records.create(date: occurrence.to_datetime)
                   puts 'an error occurred while creating an occurrence record'
                 end
