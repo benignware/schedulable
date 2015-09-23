@@ -14,6 +14,7 @@ gemspec
 # gem 'debugger'
 
 gem 'simple_form'
+gem 'rails-i18n', '~> 4.0.0' # For 4.0.x
 gem "date_picker", github: 'benignware/date_picker'
 gem 'database_cleaner'
 gem 'sqlite3'
