@@ -11,6 +11,7 @@
   <%= @event.schedule %>
 </p>
 
+<h3>Remaining occurrences</h3>
 <table class="table">
   <thead>
     <tr>
@@ -22,7 +23,7 @@
     <% @event.remaining_event_occurrences.each do |event_occurrence| %>
       <tr>
         <td><%= event_occurrence.id.to_s %></td>
-        <td><%= event_occurrence.date.to_s %></td>
+        <td><%= I18n.l ( event_occurrence.date ) %></td>
       </tr>
   <% end %>
   </tbody>
