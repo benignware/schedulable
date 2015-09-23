@@ -64,7 +64,7 @@ module Schedulable
         
           define_method "build_#{occurrences_association}" do 
             
-            puts 'build occurrences...'
+            puts 'Build occurrences...'
             
             # build occurrences for events
             
@@ -88,7 +88,7 @@ module Schedulable
 
             if schedule.rule != 'singular'
               # Get schedule occurrences
-              all_occurrences = schedule.occurrences(max_date)
+              all_occurrences = schedule.occurrences_between(Time.now, max_date.to_time)
               occurrences = []
               # Filter valid dates
               all_occurrences.each_with_index do |occurrence_date, index|
@@ -108,7 +108,7 @@ module Schedulable
               singular_date_time = (d + t.seconds_since_midnight.seconds).to_datetime
               occurrences = [singular_date_time]
             end
-            
+
             # Build occurrences
             update_mode = Schedulable.config.update_mode || :datetime
             

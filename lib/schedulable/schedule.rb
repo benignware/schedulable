@@ -39,13 +39,8 @@ module Schedulable
         self.rule||= "singular"
         self.interval||= 1
         self.count||= 0
-        
-        date = self.date ? self.date.to_time : Time.now
-        if self.time
-          date = date.change({hour: self.time.hour, min: self.time.min})
-        end
-        
-        @schedule = IceCube::Schedule.new(date)
+
+        @schedule = IceCube::Schedule.new(Time.now)
         
         if self.rule && self.rule != 'singular'
           
