@@ -40,7 +40,12 @@ module Schedulable
         self.interval||= 1
         self.count||= 0
 
-        @schedule = IceCube::Schedule.new(Time.now)
+        time = Date.today.to_time 
+        if self.time.present? 
+          time = time + self.time.seconds_since_midnight.seconds   
+        end
+
+        @schedule = IceCube::Schedule.new(time)
         
         if self.rule && self.rule != 'singular'
           
