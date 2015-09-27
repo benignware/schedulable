@@ -2,7 +2,10 @@ Master
 ------
 
 #### Bugfix
-* Fixed undefined date argument in init schedule
+* Fixed occurrences not been updated due to picking datetime to identify existing items
+* Fixed timezone offset with singular rule
+* Fixed missing remaining occurrences due to wrong ice_cube initialization date
+* Fixed undefined argument in init schedule
 * Fixed simple-form wrapper labels messing up monthly layout
 
 v0.0.8
