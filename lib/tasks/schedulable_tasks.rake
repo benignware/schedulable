@@ -1,5 +1,5 @@
 require 'rake'
-desc 'builds occurrences for schedulable models'
+desc 'Builds occurrences for schedulable models'
 namespace :schedulable do
   task :build_occurrences => :environment do
     Schedule.group(:schedulable_type).each do |schedule|
