@@ -2,7 +2,7 @@ Master
 ------
 
 #### Bugfix
-* Fixed occurrences not been updated due to picking datetime to identify existing items
+* Fixed singular occurrences not been updated in some cases
 * Fixed timezone offset with singular rule
 * Fixed missing remaining occurrences due to wrong ice_cube initialization date
 * Fixed undefined argument in init schedule
