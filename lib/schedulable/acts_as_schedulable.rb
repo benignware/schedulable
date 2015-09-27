@@ -62,9 +62,14 @@ module Schedulable
             end
           end
         
+          define_method "build_#{occurrences_association}_after_update" do 
+            schedule = self.send(name)
+            if schedule.changes.any?
+              self.send("build_#{occurrences_association}")
+            end
+          end
+        
           define_method "build_#{occurrences_association}" do 
-            
-            puts 'Build occurrences...'
             
             # build occurrences for events
             
@@ -125,7 +130,6 @@ module Schedulable
             occurrences.each_with_index do |occurrence, index|
               
               # Pull an existing record
-              puts 'pull existing record...' + index.to_s
               if update_mode == :index
                 existing_records = [occurrences_records[index]]
               elsif update_mode == :datetime
@@ -140,14 +144,13 @@ module Schedulable
                 # Overwrite existing records
                 existing_records.each do |existing_record|
                   if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
-                    puts 'an error occurred while saving an existing occurrence record'
+                    puts 'An error occurred while saving an existing occurrence record'
                   end
                 end
               else
                 # Create new record
-                puts 'create occurrence at ' + occurrence.to_datetime.to_s
                 if !occurrences_records.create(date: occurrence.to_datetime)
-                  puts 'an error occurred while creating an occurrence record'
+                  puts 'An error occurred while creating an occurrence record'
                 end
               end
             end
