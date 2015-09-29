@@ -8,7 +8,7 @@ GIT
 PATH
   remote: .
   specs:
-    schedulable (0.0.8)
+    schedulable (0.0.9)
       ice_cube
       rails (>= 4.0.3)
 
@@ -130,3 +130,6 @@ DEPENDENCIES
   schedulable!
   simple_form
   sqlite3
+
+BUNDLED WITH
+   1.10.6
