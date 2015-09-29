@@ -3,10 +3,11 @@ schedulable
 
 > Changelog
 
-Master
+v0.0.9
 ------
 
 #### Bugfix
+
 * Fixed singular occurrences not been updated in some cases
 * Fixed timezone offset with singular rule
 * Fixed missing remaining occurrences due to wrong ice_cube initialization date
