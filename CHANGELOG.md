@@ -8,7 +8,7 @@ master
 
 #### Bugfix
 
-* Fixed occurrences order
+* Fixed occurrences association order
 
 v0.0.9
 ------
