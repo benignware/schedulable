@@ -3,6 +3,13 @@ schedulable
 
 > Changelog
 
+master
+------
+
+#### Bugfix
+
+* Fixed occurrences order
+
 v0.0.9
 ------
 
