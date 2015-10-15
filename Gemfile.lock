@@ -5,6 +5,13 @@ GIT
     date_picker (0.0.6)
       rails (>= 4.0.3)
 
+GIT
+  remote: git://github.com/rails/turbolinks.git
+  revision: 83d4b3d2c52a681f07900c28adb28bc8da604733
+  specs:
+    turbolinks (3.0.0)
+      coffee-rails
+
 PATH
   remote: .
   specs:
@@ -52,8 +59,16 @@ GEM
       tzinfo (~> 1.1)
     arel (6.0.3)
     builder (3.2.2)
+    coffee-rails (4.1.0)
+      coffee-script (>= 2.2.0)
+      railties (>= 4.0.0, < 5.0)
+    coffee-script (2.4.1)
+      coffee-script-source
+      execjs
+    coffee-script-source (1.9.1.1)
     database_cleaner (1.5.0)
     erubis (2.7.0)
+    execjs (2.6.0)
     factory_girl (4.5.0)
       activesupport (>= 3.0.0)
     factory_girl_rails (4.5.0)
@@ -130,6 +145,7 @@ DEPENDENCIES
   schedulable!
   simple_form
   sqlite3
+  turbolinks!
 
 BUNDLED WITH
    1.10.6

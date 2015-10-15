@@ -1,4 +1,4 @@
-<%= simple_form_for(@event) do |f| %>
+<%= simple_form_for(@event, remote: true, authenticity_token: true) do |f| %>
   <% if @event.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@event.errors.count, "error") %> prohibited this event from being saved:</h2>

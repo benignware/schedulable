@@ -21,6 +21,8 @@ module Dummy
     
     config.assets.paths << Rails.root.join('vendor', 'assets', 'components')
     
+    config.action_view.embed_authenticity_token_in_remote_forms = true
+    
   end
 end
 
