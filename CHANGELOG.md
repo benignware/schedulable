@@ -3,8 +3,8 @@ schedulable
 
 > Changelog
 
-master
-------
+v0.0.10
+-------
 
 #### Bugfix
 
