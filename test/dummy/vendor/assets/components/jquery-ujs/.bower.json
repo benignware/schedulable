@@ -1,0 +1,32 @@
+{
+  "name": "jquery-ujs",
+  "homepage": "https://github.com/rails/jquery-ujs",
+  "authors": [
+    "Stephen St. Martin",
+    "Steve Schwartz"
+  ],
+  "description": "Ruby on Rails unobtrusive scripting adapter for jQuery",
+  "main": "src/rails.js",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": ">1.8.*"
+  },
+  "ignore": [
+    "**/.*",
+    "Gemfile*",
+    "Rakefile",
+    "bower_components",
+    "script",
+    "test"
+  ],
+  "version": "1.1.0",
+  "_release": "1.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.1.0",
+    "commit": "e228a365686d5f1358c28feec8d81325cf45fa8b"
+  },
+  "_source": "git://github.com/rails/jquery-ujs.git",
+  "_target": "~1.1.0",
+  "_originalSource": "jquery-ujs"
+}

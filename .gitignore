@@ -24,7 +24,7 @@ pkg
 .CHANGELOG.md.html
 
 # Dummy App assets
-test/dummy/vendor/assets/components
+# test/dummy/vendor/assets/components
 
 # Log files
 test/dummy/log
