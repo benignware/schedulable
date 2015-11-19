@@ -25,7 +25,8 @@ rails g scaffold Event name:string
 ```
 
 Configure your model to be schedulable:
-```
+
+```ruby
 # app/models/event.rb
 class Event < ActiveRecord::Base
   acts_as_schedulable :schedule
@@ -114,7 +115,6 @@ You can customize the generated markup by providing a hash of html-attributes as
 The schedulable-formhelper has built-in-support for Bootstrap. Simply point the style-option of schedule_input to `bootstrap` or set it as default in config. 
 
 ```erb
-
 <%= f.schedule_select :schedule, style: :bootstrap %>
 ```
 
@@ -147,7 +147,7 @@ Also provided with the plugin is a custom input for simple_form. Make sure, you 
 rails g schedulable:simple_form
 ```
 
-```ruby
+```erb
 <%# app/views/events/_form.html.erb %>
 <%= simple_form_for(@event) do |f| %>
   
@@ -236,7 +236,7 @@ You can access ice_cube-methods directly via the schedule association:
 </p>
 ```
 
-```
+```ruby
 # Prints all occurrences of the event until one year from now
 puts @event.schedule.occurrences(Time.now + 1.year)
 # Export to ical
@@ -284,7 +284,8 @@ end
 ```
 
 Declare occurrence-model with the acts_as_schedule-method like this:
-```
+
+```ruby
 # app/models/event.rb
 class Event < ActiveRecord::Base
   acts_as_schedulable :schedule, occurrences: :event_occurrences
@@ -320,7 +321,7 @@ You may add this task to crontab.
 
 With the 'whenever' gem this can be easily achieved. 
 
-```
+```ruby
 gem 'whenever', :require => false
 ```
 
