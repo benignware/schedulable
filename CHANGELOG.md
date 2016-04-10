@@ -3,6 +3,12 @@ schedulable
 
 > Changelog
 
+master
+------
+
+* Fixed #11: Different name other than schedule
+* Merge #15: Fix postgres error in build_occurrences rake task
+
 v0.0.10
 -------
 
