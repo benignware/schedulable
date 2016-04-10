@@ -2,7 +2,6 @@ class ScheduleInput < SimpleForm::Inputs::Base
   
   def input(wrapper_options)
     
-    
     # I18n
     weekdays = Date::DAYNAMES.map(&:downcase)
     weekdays = weekdays.slice(1..7) << weekdays.slice(0)
@@ -32,7 +31,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
     input_options[:until] = !input_options[:until].nil? ? input_options[:until] : false
     input_options[:count] = !input_options[:count].nil? ? input_options[:count] : false
 
-    @builder.simple_fields_for(:schedule, @builder.object.schedule || @builder.object.build_schedule) do |b|
+    @builder.simple_fields_for(attribute_name.to_sym, @builder.object.send("#{attribute_name}") || @builder.object.send("build_#{attribute_name}")) do |b|
 
       # Javascript element id
       field_id = b.object_name.to_s.gsub(/\]\[|[^-a-zA-Z0-9:.]/,"_").sub(/_$/,"")

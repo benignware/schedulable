@@ -14,7 +14,7 @@ module Schedulable
         name||= :schedule
         attribute = :date
         
-        has_one name, as: :schedulable, dependent: :destroy
+        has_one name, as: :schedulable, dependent: :destroy, class_name: 'Schedule'
         accepts_nested_attributes_for name
         
         if options[:occurrences]
