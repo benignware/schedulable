@@ -273,7 +273,7 @@ Schedulable allows for persisting occurrences and associate them with your model
 Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly:  
 
 ```ruby
-rails g model EventOccurrence event_id:integer date:datetime
+rails g schedulable:occurrence EventOccurrence
 ```
 
 ```ruby
