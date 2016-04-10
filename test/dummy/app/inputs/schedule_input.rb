@@ -2,7 +2,6 @@ class ScheduleInput < SimpleForm::Inputs::Base
   
   def input(wrapper_options)
     
-    
     # I18n
     weekdays = Date::DAYNAMES.map(&:downcase)
     weekdays = weekdays.slice(1..7) << weekdays.slice(0)
@@ -32,7 +31,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
     input_options[:until] = !input_options[:until].nil? ? input_options[:until] : false
     input_options[:count] = !input_options[:count].nil? ? input_options[:count] : false
 
-    @builder.simple_fields_for(:schedule, @builder.object.schedule || @builder.object.build_schedule) do |b|
+    @builder.simple_fields_for(attribute_name.to_sym, @builder.object.send("#{attribute_name}") || @builder.object.send("build_#{attribute_name}")) do |b|
 
       # Javascript element id
       field_id = b.object_name.to_s.gsub(/\]\[|[^-a-zA-Z0-9:.]/,"_").sub(/_$/,"")
@@ -64,8 +63,8 @@ class ScheduleInput < SimpleForm::Inputs::Base
                 weekdays.reduce(''.html_safe) do | content, weekday | 
                   content << template.content_tag("div", nil, style: 'display: table-row') do 
                     template.content_tag("span", day_labels[weekday] || weekday, style: 'display: table-cell') <<
-                    db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, checked: db.object.send(weekday), item_wrapper_tag: nil) do |cb|
-                      template.content_tag("span", cb.check_box(), style: 'display: table-cell; text-align: center')
+                    db.collection_check_boxes(weekday.to_sym, [1, 2, 3, 4, -1], lambda { |i| i} , lambda { |i| "&nbsp;".html_safe}, boolean_style: :inline, label: false, checked: db.object.send(weekday), inline_label: false, item_wrapper_tag: nil) do |cb|
+                      template.content_tag("span", style: 'display: table-cell; text-align: center;') { cb.check_box(class: "check_box") }
                     end 
                   end
                 end
@@ -109,8 +108,8 @@ class ScheduleInput < SimpleForm::Inputs::Base
       
       template.javascript_tag(
         "(function() {" << 
-        "  var container = document.querySelectorAll('##{field_id}'); container = container[container.length - 1];" << 
-        "  var select = container.querySelector(\"select[name*='rule']\");" << 
+        "  var container = document.querySelectorAll('##{field_id}'); container = container[container.length - 1]; " << 
+        "  var select = container.querySelector(\"select[name*='rule']\"); " << 
         "  function update() {" <<
         "    var value = this.value;" << 
         "    [].slice.call(container.querySelectorAll(\"*[data-group]\")).forEach(function(elem) { " <<
