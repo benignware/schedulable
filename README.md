@@ -24,7 +24,9 @@ Create an event model
 rails g scaffold Event name:string
 ```
 
-Configure your model to be schedulable:
+Don't forget to migrate your database at this point in order to reflect the changes: `rake db:migrate`
+
+Open `app/models/event.rb` and add the following to configure your model to be schedulable:
 
 ```ruby
 # app/models/event.rb
@@ -270,11 +272,14 @@ gem 'ice_cube', git: 'git://github.com/joelmeyerhamme/ice_cube.git', branch: 'in
 ## Persist Occurrences
 
 Schedulable allows for persisting occurrences and associate them with your model. 
-Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly:  
+Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly
+Use the occurrence generator for setting things up:
 
 ```ruby
 rails g schedulable:occurrence EventOccurrence
 ```
+
+Open `app/models/event_occurrence.rb` and add an association to your event model.
 
 ```ruby
 # app/models/event_occurrence.rb
@@ -283,7 +288,7 @@ class EventOccurrence < ActiveRecord::Base
 end
 ```
 
-Declare occurrence-model with the acts_as_schedule-method like this:
+On the other side, pass the association to the acts_as_schedule-method with the `occurrences`-option.
 
 ```ruby
 # app/models/event.rb
