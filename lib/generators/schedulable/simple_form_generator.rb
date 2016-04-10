@@ -6,7 +6,7 @@ module Schedulable
       source_root File.expand_path('../templates', __FILE__)
       
       def create_config
-        puts 'install simple_form custom input'
+        puts 'Install simple_form custom input'
         template 'inputs/schedule_input.rb', "app/inputs/schedule_input.rb"
       end
       
