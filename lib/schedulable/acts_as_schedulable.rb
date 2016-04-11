@@ -98,7 +98,7 @@ module Schedulable
               # Filter valid dates
               all_occurrences.each_with_index do |occurrence_date, index|
                 if occurrence_date.present? && occurrence_date.to_time > now
-                  if occurrence_date.to_time < max_date && index < max_count
+                  if occurrence_date.to_time < max_date && index <= max_count
                     occurrences << occurrence_date
                   else
                     max_date = [max_date, occurrence_date].min
