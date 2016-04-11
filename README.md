@@ -271,24 +271,16 @@ gem 'ice_cube', git: 'git://github.com/joelmeyerhamme/ice_cube.git', branch: 'in
 
 ## Persist Occurrences
 
-Schedulable allows for persisting occurrences and associate them with your model. 
-Your occurrence model must include an attribute of type 'datetime' with name 'date' as well as a reference to your event model to setup up the association properly
-Use the occurrence generator for setting things up:
+Schedulable allows for persisting occurrences and associate them with your event model. 
+The Occurrence Model model must include an attribute of type 'datetime' with name 'date' as well as a polymorphic association to the schedulable event model.
+Simply use the occurrence generator for setting up the appropriate model:
 
 ```ruby
 rails g schedulable:occurrence EventOccurrence
 ```
 
-Open `app/models/event_occurrence.rb` and add an association to your event model.
+On the other side, pass the association to your schedulable event model by using the `occurrences`-option of the `acts_as_schedulable`-method:
 
-```ruby
-# app/models/event_occurrence.rb
-class EventOccurrence < ActiveRecord::Base
-  belongs_to :event
-end
-```
-
-On the other side, pass the association to the acts_as_schedule-method with the `occurrences`-option.
 
 ```ruby
 # app/models/event.rb
@@ -297,12 +289,11 @@ class Event < ActiveRecord::Base
 end
 ```
 
-This will add a `event_occurrences`-association to the model as well as `remaining_event_occurrences` and `previous_event_occurrences`-associations.
+This will create the corresponding has_many-association and also add `remaining_event_occurrences` and `previous_event_occurrences`-methods.
 
 Instances of remaining occurrences are persisted when the parent-model is saved.
- 
 Occurrences records will be reused if their datetime matches the saved schedule. 
-Previous occurrences stay untouched.
+Past occurrences stay untouched.
 
 ### Terminating and non-terminating events
 An event is terminating if an until- or count-attribute has been specified. 
@@ -313,7 +304,7 @@ This can be configured via the 'build_max_count' and 'build_max_period'-options.
 See notes on configuration. 
 
 ### Automate build of occurrences
-Since we cannot build all occurrences at once, we will need a task that adds occurrences as time goes by. 
+Since we cannot build an infinite amount of occurrences, we will need a task that adds occurrences as time goes by. 
 Schedulable comes with a rake-task that performs an update on all scheduled occurrences. 
 
 ```cli
@@ -322,7 +313,7 @@ rake schedulable:build_occurrences
 
 You may add this task to crontab. 
 
-#### Using 'whenever' to schedule build of occurrences
+#### Use 'whenever' to schedule the generation of occurrences
 
 With the 'whenever' gem this can be easily achieved. 
 
@@ -339,6 +330,7 @@ wheneverize .
 Open up the file 'config/schedule.rb' and add the job:
 
 ```ruby
+# config/schedule.rb
 set :environment, "development"
 set :output, {:error => "log/cron_error_log.log", :standard => "log/cron_log.log"}
 
