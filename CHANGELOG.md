@@ -11,6 +11,7 @@ master
 
 #### Bugfix
 
+* Merge #17: Fixes the timezone issue #16, with event occurrences of recurring events
 * Fixed #14: Incorrect number of event occurrences
 * Fixed #11: Different name other than schedule
 * Merge #15: Fix postgres error in build_occurrences rake task / Fix default_scope without block is removed
