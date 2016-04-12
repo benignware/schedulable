@@ -6,6 +6,11 @@ schedulable
 master
 ------
 
+#### Enhancements
+* Added option `input_types` for integrating custom form controls
+
+#### Bugfix
+
 * Fixed #14: Incorrect number of event occurrences
 * Fixed #11: Different name other than schedule
 * Merge #15: Fix postgres error in build_occurrences rake task / Fix default_scope without block is removed

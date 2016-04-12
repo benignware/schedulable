@@ -120,6 +120,19 @@ The schedulable-formhelper has built-in-support for Bootstrap. Simply point the 
 <%= f.schedule_select :schedule, style: :bootstrap %>
 ```
 
+#### Custom inputs
+Customize datetime-controls by passing FormBuilder-methods as a hash to the `input_types`-option. 
+See below example for integrating [date_picker](https://github.com/benignware/date_picker) with schedulable:
+
+```erb
+<%# app/views/events/_form.html.erb %>
+  
+<div class="field form-group">
+  <%= f.label :schedule %><br>
+  <%= f.schedule_select :schedule, style: :bootstrap, until: true, input_types: {date: :date_select, time: :time_picker, datetime: :datetime_picker} %>
+</div>
+```
+
 #### Options
 
 <table>
@@ -129,6 +142,9 @@ The schedulable-formhelper has built-in-support for Bootstrap. Simply point the 
   <tr>
   <tr>
     <td>count</td><td>Boolean</td><td>Specifies whether to show 'count'-field</td>
+  </tr>
+  <tr>
+    <td>input_types</td><td>Hash</td><td>Specify a hash containing custom form builder methods. Defaults to `{date: :date_select, time: :time_select, datetime: :datetime_select}`. The interface of the custom form builder method must either match `date_select` or `date_field`-methods</td>
   </tr>
   <tr>
     <td>interval</td><td>Boolean</td><td>Specifies whether to show 'interval'-field</td>
@@ -198,6 +214,19 @@ config.wrapper_mappings = {
 }
 ```
 
+#### Custom inputs
+Customize datetime-controls by passing simple_form-inputs as a hash to the `input_types`-option. 
+See below example for integrating [date_picker](https://github.com/benignware/date_picker) with schedulable:
+
+```erb
+<%# app/views/events/_form.html.erb %>
+  
+<div class="field">
+  <%= f.label :schedule %><br>
+  <%= f.input :schedule, as: :schedule, input_types: {date: :date_picker, time: :date_picker, datetime: :date_picker} %>
+</div>
+```
+
 #### Options
 
 <table>
@@ -207,6 +236,9 @@ config.wrapper_mappings = {
   <tr>
   <tr>
     <td>count</td><td>Boolean</td><td>Specifies whether to show 'count'-field</td>
+  </tr>
+  <tr>
+    <td>input_types</td><td>Hash</td><td>Specify a hash containing custom simple form inputs. Defaults to `{date: :date_time, time: :date_time, datetime: :date_time}`.</td>
   </tr>
   <tr>
     <td>interval</td><td>Boolean</td><td>Specifies whether to show 'interval'-field</td>
@@ -356,8 +388,18 @@ Open 'config/initializers/schedulable.rb' and edit options as needed:
 
 ```ruby
 Schedulable.configure do |config|
+  # Build occurrences
   config.max_build_count = 0
   config.max_build_period = 1.year
+  # SimpleForm
+  config.simple_form = {
+    input_types: {
+   	  date: :date_time,
+   	  time: :date_time,
+   	  datetime: :date_time
+    }
+  }
+  # Generic Form helper
   config.form_helper = {
     style: :default
   }
