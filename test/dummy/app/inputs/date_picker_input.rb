@@ -1,4 +1,4 @@
-class DateTimeInput < SimpleForm::Inputs::Base
+class DatePickerInput < SimpleForm::Inputs::Base
   
   def input(wrapper_options)
   

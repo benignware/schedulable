@@ -18,10 +18,12 @@ class ScheduleInput < SimpleForm::Inputs::Base
     date_order = I18n.t('date.order', default: "")
     date_order = date_order.blank? ? [:year, :month, :day] : date_order 
     
+    # Setup date_options
     date_options = {
       order: date_order,
       use_month_names: month_names
     }
+    
     
     # Input html options
     input_html_options[:type] ||= input_type if html5?
@@ -30,6 +32,9 @@ class ScheduleInput < SimpleForm::Inputs::Base
     input_options[:interval] = !input_options[:interval].nil? ? input_options[:interval] : false
     input_options[:until] = !input_options[:until].nil? ? input_options[:until] : false
     input_options[:count] = !input_options[:count].nil? ? input_options[:count] : false
+    
+    # Setup input types
+    input_types = {date: :date_time, time: :date_time, datetime: :date_time}.merge(input_options[:input_types] || {})
 
     @builder.simple_fields_for(attribute_name.to_sym, @builder.object.send("#{attribute_name}") || @builder.object.send("build_#{attribute_name}")) do |b|
 
@@ -41,7 +46,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
         b.input(:rule, collection: ['singular', 'daily', 'weekly', 'monthly'], label_method: lambda { |v| I18n.t("schedulable.rules.#{v}", default: v.capitalize) }, label: false, include_blank: false) << 
         
         template.content_tag("div", {data: {group: 'singular'}}) do
-          b.input :date, date_options
+          b.input :date, date_options.merge({as: input_types[:date]})
         end <<
         
         template.content_tag("div", {data: {group: 'weekly'}}) do
@@ -75,7 +80,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
         end << 
         
         template.content_tag("div", data: {group: 'singular,daily,weekly,monthly'}) do
-          b.input :time, date_options
+          b.input :time, date_options.merge({as: input_types[:time]})
         end << 
         
         (if input_options[:interval]
@@ -88,7 +93,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
         
         (if input_options[:until]
           template.content_tag("div", data: {group: 'daily,weekly,monthly'}) do
-            b.input :until, date_options
+            b.input :until, date_options.merge({as: input_types[:datetime]})
           end
         else
           b.input(:until, as: :hidden, input_html: {value: nil})
