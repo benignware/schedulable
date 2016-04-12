@@ -27,6 +27,12 @@ class ScheduleInput < SimpleForm::Inputs::Base
     # Input html options
     input_html_options[:type] ||= input_type if html5?
     
+    # Get config options
+    config_options = Schedulable.config.simple_form.present? ? Schedulable.config.simple_form : {}
+    
+    # Merge input options
+    input_options = config_options.merge(input_options)
+    
     # Input options
     input_options[:interval] = !input_options[:interval].nil? ? input_options[:interval] : false
     input_options[:until] = !input_options[:until].nil? ? input_options[:until] : false
