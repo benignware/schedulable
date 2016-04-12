@@ -8,7 +8,7 @@ require 'i18n'
 module Schedulable
   
   class Config
-    attr_accessor :max_build_count, :max_build_period, :form_helper, :update_mode
+    attr_accessor :max_build_count, :max_build_period, :form_helper, :simple_form, :update_mode
   end
 
   def self.config

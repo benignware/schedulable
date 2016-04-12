@@ -18,6 +18,7 @@ module Schedulable
         
         # copy parameters from application configuration
         config.form_helper = app.config.schedulable[:form_helper]
+        config.simple_form = app.config.schedulable[:simple_form]
         config.max_build_count = app.config.schedulable[:max_build_count]
         config.max_build_period = app.config.schedulable[:max_build_period]
         
