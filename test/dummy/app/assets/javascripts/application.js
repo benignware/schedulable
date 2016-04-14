@@ -14,7 +14,8 @@
 //= require jquery/dist/jquery.min
 //= require jquery-ujs/src/rails
 //= require turbolinks
-//= require moment/min/moment.min
+//= require moment/min/moment-with-locales.min
+//= require moment-timezone/builds/moment-timezone-with-data.min
 //= require moment/min/locales.min
 //= require eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min
 //= require_tree .

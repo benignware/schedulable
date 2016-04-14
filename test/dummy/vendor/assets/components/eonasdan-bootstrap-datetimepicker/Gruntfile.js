@@ -85,13 +85,18 @@ module.exports = function (grunt) {
         less: {
             production: {
                 options: {
-                    cleancss: true
+                    cleancss: true,
+                    compress: true,
+                    paths: 'node_modules'
                 },
                 files: {
                     'build/css/bootstrap-datetimepicker.min.css': 'src/less/bootstrap-datetimepicker-build.less'
                 }
             },
             development: {
+                options: {
+                    paths: 'node_modules'
+                },
                 files: {
                     'build/css/bootstrap-datetimepicker.css': 'src/less/bootstrap-datetimepicker-build.less'
                 }
@@ -117,13 +122,30 @@ module.exports = function (grunt) {
                     summary: 'true'
                 }
             }
-        }
+        },
 
+        nugetpack: {
+            less: {
+                src: 'src/nuget/Bootstrap.v3.Datetimepicker.nuspec',
+                dest: 'build/nuget',
+                options: {
+                    version: '<%= pkg.version %>'
+                }
+            },
+            css: {
+                src: 'src/nuget/Bootstrap.v3.Datetimepicker.CSS.nuspec',
+                dest: 'build/nuget',
+                options: {
+                    version: '<%= pkg.version %>'
+                }
+            }
+        }
     });
 
     grunt.loadTasks('tasks');
 
     grunt.loadNpmTasks('grunt-contrib-jasmine');
+    grunt.loadNpmTasks('grunt-nuget');
 
     // These plugins provide necessary tasks.
     require('load-grunt-tasks')(grunt);
@@ -146,49 +168,24 @@ module.exports = function (grunt) {
         'jshint', 'jscs', 'uglify', 'less'
     ]);
 
-    grunt.registerTask('nuget', 'Create a nuget package', function () {
-        var target = grunt.option('target') || 'less', done = this.async();
-        if (target === 'less') {
-            grunt.util.spawn({
-                cmd: 'src/nuget/nuget.exe',
-                args: [
-                    'pack',
-                    'src/nuget/Bootstrap.v3.Datetimepicker.nuspec',
-                    '-OutputDirectory',
-                    'build/nuget',
-                    '-Version',
-                    grunt.config.get('pkg').version
-                ]
-            }, function (error, result) {
-                if (error) {
-                    grunt.log.error(error);
-                } else {
-                    grunt.log.write(result);
-                }
-                done();
-            });
-        }
-        else { //--target=css
-            grunt.util.spawn({
-                cmd: 'src/nuget/nuget.exe',
-                args: [
-                    'pack',
-                    'src/nuget/Bootstrap.v3.Datetimepicker.CSS.nuspec',
-                    '-OutputDirectory',
-                    'build/nuget',
-                    '-Version',
-                    grunt.config.get('pkg').version
-                ]
-            }, function (error, result) {
-                if (error) {
-                    grunt.log.error(error);
-                } else {
-                    grunt.log.write(result);
-                }
-                done();
-            });
-        }
+    grunt.registerTask('test', ['jshint', 'jscs', 'uglify', 'less', 'jasmine']);
+
+    grunt.registerTask('docs', 'Generate docs', function () {
+        grunt.util.spawn({
+            cmd: 'mkdocs',
+            args: ['build', '--clean']
+        });
     });
 
-    grunt.registerTask('test', ['jshint', 'jscs', 'uglify', 'less', 'jasmine']);
+    grunt.registerTask('release', function (version) {
+        if (!version || version.split('.').length !== 3) {
+            grunt.fail.fatal('malformed version. Use grunt release:1.2.3');
+        }
+
+        grunt.task.run([
+            'bump_version:' + version,
+            'build:travis',
+            'docs'
+        ]);
+    });
 };
