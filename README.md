@@ -215,16 +215,12 @@ config.wrapper_mappings = {
 ```
 
 #### Custom inputs
-Customize datetime-controls by passing simple_form-inputs as a hash to the `input_types`-option. 
-See below example for integrating [date_picker](https://github.com/benignware/date_picker) with schedulable:
 
-```erb
-<%# app/views/events/_form.html.erb %>
-  
-<div class="field">
-  <%= f.label :schedule %><br>
-  <%= f.input :schedule, as: :schedule, input_types: {date: :date_picker, time: :date_picker, datetime: :date_picker} %>
-</div>
+You can customize datetime-controls by passing simple_form-inputs as a hash to the `input_types`-option. 
+
+For integrating [date_picker](https://github.com/benignware/date_picker) with schedulable and simple_form, all you need to do is running date_picker's simple_form-generator to create a default `date_time`-input:
+```cli
+rails g date_picker:simple_form date_time
 ```
 
 #### Options
