@@ -2,6 +2,9 @@ class ScheduleInput < SimpleForm::Inputs::Base
   
   def input(wrapper_options)
     
+    # Init options
+    input_options||= {}
+    
     # I18n
     weekdays = Date::DAYNAMES.map(&:downcase)
     weekdays = weekdays.slice(1..7) << weekdays.slice(0)
@@ -24,9 +27,14 @@ class ScheduleInput < SimpleForm::Inputs::Base
       use_month_names: month_names
     }
     
-    
     # Input html options
     input_html_options[:type] ||= input_type if html5?
+    
+    # Get config options
+    config_options = Schedulable.config.simple_form.present? ? Schedulable.config.simple_form : {}
+    
+    # Merge input options
+    input_options = config_options.merge(input_options)
     
     # Input options
     input_options[:interval] = !input_options[:interval].nil? ? input_options[:interval] : false
@@ -34,7 +42,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
     input_options[:count] = !input_options[:count].nil? ? input_options[:count] : false
     
     # Setup input types
-    input_types = {date: :date_time, time: :date_time, datetime: :date_time}.merge(input_options[:input_types] || {})
+    input_types = {}.merge(input_options[:input_types] || {})
 
     @builder.simple_fields_for(attribute_name.to_sym, @builder.object.send("#{attribute_name}") || @builder.object.send("build_#{attribute_name}")) do |b|
 
