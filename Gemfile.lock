@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/benignware/date_picker.git
-  revision: 93afa9afd4d1a61c56c344eab1c95f26dafbcb4b
+  revision: ccb15ab3dd1b10e100d2c24b8f0487529dadf738
   specs:
     date_picker (0.0.8)
       rails (>= 4.0.3)
