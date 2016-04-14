@@ -11,6 +11,7 @@ master
 
 #### Bugfix
 
+* Fixed config-generator template breaks with removed options
 * Merge #17: Fixes the timezone issue #16, with event occurrences of recurring events
 * Fixed #14: Incorrect number of event occurrences
 * Fixed #11: Different name other than schedule
