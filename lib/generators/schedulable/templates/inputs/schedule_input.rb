@@ -2,6 +2,9 @@ class ScheduleInput < SimpleForm::Inputs::Base
   
   def input(wrapper_options)
     
+    # Init options
+    input_options||= {}
+    
     # I18n
     weekdays = Date::DAYNAMES.map(&:downcase)
     weekdays = weekdays.slice(1..7) << weekdays.slice(0)
