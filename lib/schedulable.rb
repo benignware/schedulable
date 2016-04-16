@@ -1,3 +1,4 @@
+require 'schedulable/engine' if defined? ::Rails::Engine
 require 'schedulable/railtie' if defined? ::Rails::Railtie
 require 'schedulable/acts_as_schedulable'
 require 'schedulable/schedule'
@@ -6,7 +7,7 @@ require 'schedulable/form_helper'
 require 'i18n'
 
 module Schedulable
-  
+
   class Config
     attr_accessor :max_build_count, :max_build_period, :form_helper, :simple_form, :update_mode
   end
