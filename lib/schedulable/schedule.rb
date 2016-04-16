@@ -21,7 +21,16 @@ module Schedulable
       end
 
       def to_s
-        return @schedule.to_s
+        message = ""
+        begin
+          message = @schedule.to_s
+        rescue Exception
+          locale = I18n.locale
+          I18n.locale = :en
+          message = @schedule.to_s
+          I18n.locale = locale
+        end
+        return message
       end
 
       def method_missing(meth, *args, &block)
