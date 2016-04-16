@@ -6,6 +6,13 @@ GIT
       rails (>= 4.0.3)
 
 GIT
+  remote: git://github.com/joelmeyerhamme/ice_cube.git
+  revision: 52cdece18fb941fbb22e2678eafcf5b18fd8324e
+  branch: international
+  specs:
+    ice_cube (0.11.2)
+
+GIT
   remote: git://github.com/rails/turbolinks.git
   revision: 83d4b3d2c52a681f07900c28adb28bc8da604733
   specs:
@@ -78,7 +85,6 @@ GEM
     globalid (0.3.6)
       activesupport (>= 4.1.0)
     i18n (0.7.0)
-    ice_cube (0.14.0)
     json (1.8.3)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
@@ -145,6 +151,7 @@ DEPENDENCIES
   database_cleaner
   date_picker!
   factory_girl_rails (~> 4.0)
+  ice_cube!
   rails-i18n (~> 4.0.0)
   schedulable!
   simple_form
