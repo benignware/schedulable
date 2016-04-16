@@ -225,7 +225,7 @@ module Schedulable
           "      }" <<
           "    });" <<
           "  }" << 
-          "  if (jQuery) { jQuery(select).on('change', update); } else { select.addEventListener('change', update); }" <<
+          "  if (typeof jQuery !== 'undefined') { jQuery(select).on('change', update); } else { select.addEventListener('change', update); }" <<
           "  update.call(select);" << 
           "})()"
         )
