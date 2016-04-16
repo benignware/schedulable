@@ -42,7 +42,7 @@ class ScheduleInput < SimpleForm::Inputs::Base
     input_options[:count] = !input_options[:count].nil? ? input_options[:count] : false
     
     # Setup input types
-    input_types = {date: :date_time, time: :date_time, datetime: :date_time}.merge(input_options[:input_types] || {})
+    input_types = {date: :date, time: :time, datetime: :datetime}.merge(input_options[:input_types] || {})
 
     @builder.simple_fields_for(attribute_name.to_sym, @builder.object.send("#{attribute_name}") || @builder.object.send("build_#{attribute_name}")) do |b|
 
