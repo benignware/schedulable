@@ -253,6 +253,8 @@ def event_params
   params.require(:event).permit(:name, schedule_attributes: Schedulable::ScheduleSupport.param_names)
 end
 ```
+Note: If you don't use `schedule` as attribute name, you need to rename `schedule_attributes` accordingly.
+
 
 ## Accessing IceCube
 You can access ice_cube-methods directly via the schedule association:
