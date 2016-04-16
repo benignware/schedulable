@@ -75,102 +75,104 @@ module Schedulable
             
             schedule = self.send(name)
             
-            now = Time.now
+            if schedule.present?
             
-            # TODO: Make configurable 
-            occurrence_attribute = :date 
-            
-            schedulable = schedule.schedulable
-            terminating = schedule.rule != 'singular' && (schedule.until.present? || schedule.count.present? && schedule.count > 1)
-            
-            max_period = Schedulable.config.max_build_period || 1.year
-            max_date = now + max_period
-            
-            max_date = terminating ? [max_date, schedule.last.to_time].min : max_date
-            
-            max_count = Schedulable.config.max_build_count || 100
-            max_count = terminating && schedule.remaining_occurrences.any? ? [max_count, schedule.remaining_occurrences.count].min : max_count
-
-            if schedule.rule != 'singular'
-              # Get schedule occurrences
-              all_occurrences = schedule.occurrences_between(Time.now, max_date.to_time)
-              occurrences = []
-              # Filter valid dates
-              all_occurrences.each_with_index do |occurrence_date, index|
-                if occurrence_date.present? && occurrence_date.to_time > now
-                  if occurrence_date.to_time < max_date && index <= max_count
-                    occurrences << occurrence_date
-                  else
-                    max_date = [max_date, occurrence_date].min
-                  end
-                end
-              end
-            else
-              # Get Singular occurrence
-              d = schedule.date
-              t = schedule.time
-              dt = d + t.seconds_since_midnight.seconds   
-              singular_date_time = (d + t.seconds_since_midnight.seconds).to_datetime
-              occurrences = [singular_date_time]
-            end
-
-            # Build occurrences
-            update_mode = Schedulable.config.update_mode || :datetime
-            
-            # Always use index as base for singular events
-            if schedule.rule == 'singular'
-              update_mode = :index
-            end
-            
-            # Get existing remaining records
-            occurrences_records = schedulable.send("remaining_#{occurrences_association}")
-
-            # build occurrences
-            existing_record = nil
-            occurrences.each_with_index do |occurrence, index|
+              now = Time.now
               
-              # Pull an existing record
-              if update_mode == :index
-                existing_records = [occurrences_records[index]]
-              elsif update_mode == :datetime
-                existing_records = occurrences_records.select { |record|
-                  record.date.to_datetime == occurrence.to_datetime
-                }
-              else
-                existing_records = []
-              end
-
-              if existing_records.any?
-                # Overwrite existing records
-                existing_records.each do |existing_record|
-                  if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
-                    puts 'An error occurred while saving an existing occurrence record'
+              # TODO: Make configurable 
+              occurrence_attribute = :date 
+              
+              schedulable = schedule.schedulable
+              terminating = schedule.rule != 'singular' && (schedule.until.present? || schedule.count.present? && schedule.count > 1)
+              
+              max_period = Schedulable.config.max_build_period || 1.year
+              max_date = now + max_period
+              
+              max_date = terminating ? [max_date, schedule.last.to_time].min : max_date
+              
+              max_count = Schedulable.config.max_build_count || 100
+              max_count = terminating && schedule.remaining_occurrences.any? ? [max_count, schedule.remaining_occurrences.count].min : max_count
+  
+              if schedule.rule != 'singular'
+                # Get schedule occurrences
+                all_occurrences = schedule.occurrences_between(Time.now, max_date.to_time)
+                occurrences = []
+                # Filter valid dates
+                all_occurrences.each_with_index do |occurrence_date, index|
+                  if occurrence_date.present? && occurrence_date.to_time > now
+                    if occurrence_date.to_time < max_date && index <= max_count
+                      occurrences << occurrence_date
+                    else
+                      max_date = [max_date, occurrence_date].min
+                    end
                   end
                 end
               else
-                # Create new record
-                if !occurrences_records.create(date: occurrence.to_datetime)
-                  puts 'An error occurred while creating an occurrence record'
+                # Get Singular occurrence
+                d = schedule.date
+                t = schedule.time
+                dt = d + t.seconds_since_midnight.seconds   
+                singular_date_time = (d + t.seconds_since_midnight.seconds).to_datetime
+                occurrences = [singular_date_time]
+              end
+  
+              # Build occurrences
+              update_mode = Schedulable.config.update_mode || :datetime
+              
+              # Always use index as base for singular events
+              if schedule.rule == 'singular'
+                update_mode = :index
+              end
+              
+              # Get existing remaining records
+              occurrences_records = schedulable.send("remaining_#{occurrences_association}")
+  
+              # build occurrences
+              existing_record = nil
+              occurrences.each_with_index do |occurrence, index|
+                
+                # Pull an existing record
+                if update_mode == :index
+                  existing_records = [occurrences_records[index]]
+                elsif update_mode == :datetime
+                  existing_records = occurrences_records.select { |record|
+                    record.date.to_datetime == occurrence.to_datetime
+                  }
+                else
+                  existing_records = []
+                end
+  
+                if existing_records.any?
+                  # Overwrite existing records
+                  existing_records.each do |existing_record|
+                    if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
+                      puts 'An error occurred while saving an existing occurrence record'
+                    end
+                  end
+                else
+                  # Create new record
+                  if !occurrences_records.create(date: occurrence.to_datetime)
+                    puts 'An error occurred while creating an occurrence record'
+                  end
                 end
               end
-            end
-            
-            
-            # Clean up unused remaining occurrences 
-            occurrences_records = schedulable.send("remaining_#{occurrences_association}")
-            record_count = 0
-            occurrences_records.each do |occurrence_record|
-              if occurrence_record.date > now
-                # Destroy occurrence if date or count lies beyond range
-                if schedule.rule != 'singular' && (!schedule.occurs_on?(occurrence_record.date.to_date) || !schedule.occurring_at?(occurrence_record.date.to_time) || occurrence_record.date > max_date) || schedule.rule == 'singular' && record_count > 0
-                  occurrences_records.destroy(occurrence_record)
+              
+              
+              # Clean up unused remaining occurrences 
+              occurrences_records = schedulable.send("remaining_#{occurrences_association}")
+              record_count = 0
+              occurrences_records.each do |occurrence_record|
+                if occurrence_record.date > now
+                  # Destroy occurrence if date or count lies beyond range
+                  if schedule.rule != 'singular' && (!schedule.occurs_on?(occurrence_record.date.to_date) || !schedule.occurring_at?(occurrence_record.date.to_time) || occurrence_record.date > max_date) || schedule.rule == 'singular' && record_count > 0
+                    occurrences_records.destroy(occurrence_record)
+                  end
+                  record_count = record_count + 1
                 end
-                record_count = record_count + 1
               end
+              
             end
-            
           end
-          
         end
       end
   
