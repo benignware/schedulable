@@ -56,7 +56,7 @@ module Schedulable
         time_string = time.strftime("%d-%m-%Y %I:%M %p")
         time = Time.zone.parse(time_string)
 
-        @schedule = IceCube::Schedule.new(time)
+        @schedule = IceCube::Schedule.new(time, duration: IceCube::ONE_HOUR)
 
         if self.rule && self.rule != 'singular'
 
