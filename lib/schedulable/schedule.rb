@@ -59,6 +59,7 @@ module Schedulable
         time_end = Date.today.to_time(:utc)
         if self.time_end.present?
           time_end = time_end + self.time_end.seconds_since_midnight.seconds
+          time_end = Time.zone.parse(time_end.strftime("%d-%m-%Y %I:%M %p"))
           schedule_time_end = time_end - time
         else
           schedule_time_end = 0
