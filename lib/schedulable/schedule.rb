@@ -22,13 +22,20 @@ module Schedulable
 
       def to_s
         message = ""
-        begin
-          message = @schedule.to_s
-        rescue Exception
-          locale = I18n.locale
-          I18n.locale = :en
-          message = @schedule.to_s
-          I18n.locale = locale
+        if self.rule == 'singular'
+          # Return formatted datetime for singular rules
+          datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec, time.zone)
+          message = I18n.localize(datetime)
+        else
+          # For other rules, refer to icecube
+          begin
+            message = @schedule.to_s
+          rescue Exception
+            locale = I18n.locale
+            I18n.locale = :en
+            message = @schedule.to_s
+            I18n.locale = locale
+          end
         end
         return message
       end
