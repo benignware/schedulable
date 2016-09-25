@@ -29,7 +29,7 @@ module Schedulable
           end
           options[:occurrences][:class_name] = occurrences_association.to_s.classify
           options[:occurrences][:as]||= :schedulable
-          options[:occurrences][:dependent]||:destroy
+          options[:occurrences][:dependent]||= :destroy
           options[:occurrences][:autosave]||= true
           
           has_many occurrences_association, options[:occurrences]
