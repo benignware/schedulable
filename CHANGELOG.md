@@ -11,10 +11,11 @@ master
 
 #### Bugfix
 
-* Fixed config-generator template breaks with removed options
+# Fix max_build_count-option should be ignored when set to zero
+* Fix config-generator template breaks with removed options
 * Merge #17: Fixes the timezone issue #16, with event occurrences of recurring events
-* Fixed #14: Incorrect number of event occurrences
-* Fixed #11: Different name other than schedule
+* Fix #14: Incorrect number of event occurrences
+* Fix #11: Different name other than schedule
 * Merge #15: Fix postgres error in build_occurrences rake task / Fix default_scope without block is removed
 
 v0.0.10
@@ -29,11 +30,11 @@ v0.0.9
 
 #### Bugfix
 
-* Fixed singular occurrences not been updated in some cases
-* Fixed timezone offset with singular rule
-* Fixed missing remaining occurrences due to wrong ice_cube initialization date
-* Fixed undefined argument in init schedule
-* Fixed simple-form wrapper labels messing up monthly layout
+* Fix singular occurrences not been updated in some cases
+* Fix timezone offset with singular rule
+* Fix missing remaining occurrences due to wrong ice_cube initialization date
+* Fix undefined argument in init schedule
+* Fix simple-form wrapper labels messing up monthly layout
 
 v0.0.8
 ------
@@ -47,8 +48,8 @@ v0.0.8
 
 #### Bugfix
 
-* Fixed wrong day labels in form input #5
-* Fixed deprecated group-syntax in rake task #6
+* Fix wrong day labels in form input #5
+* Fix deprecated group-syntax in rake task #6
 
 #### Deprecation
 
