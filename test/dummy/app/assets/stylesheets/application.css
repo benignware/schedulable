@@ -10,6 +10,7 @@
  *
  *= require bootstrap/dist/css/bootstrap.min
  *= require eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min
+ *= require flatpickr/dist/flatpickr.min
  *= require_self
  * require scaffold
  *= require events

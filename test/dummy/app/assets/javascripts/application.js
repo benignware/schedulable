@@ -18,6 +18,8 @@
 //= require moment-timezone/builds/moment-timezone-with-data.min
 //= require moment/min/locales.min
 //= require eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min
+//= require flatpickr/dist/flatpickr.min
+//= require flatpickr/src/flatpickr.l10n.de
 //= require_tree .
 
 $(document).on('ready page:load', function() {
