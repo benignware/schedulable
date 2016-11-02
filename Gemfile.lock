@@ -1,15 +1,14 @@
 GIT
   remote: git://github.com/benignware/date_picker.git
-  revision: 97dbd26d23f56bded7c2b161301db4cfcee0907d
+  revision: 3c2e500021e94bb238bf48bce5d9c4f8ea49dfb0
   specs:
     date_picker (0.0.9)
       rails (>= 4.0.3)
 
 GIT
   remote: git://github.com/joelmeyerhamme/ice_cube.git
-  revision: d8709623b31fc6d4bb0e881dcbcb36883b18d6f5
-  ref: d870962
-  branch: international
+  revision: 22bcc01d516406501fdd4acdb51ebcab2c706a51
+  branch: master
   specs:
     ice_cube (0.14.0)
 
