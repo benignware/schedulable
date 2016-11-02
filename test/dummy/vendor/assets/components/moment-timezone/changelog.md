@@ -1,3 +1,16 @@
+### `0.5.7` _2016-10-21_
+* Updated data to IANA TZDB `2016h`. [#403](https://github.com/moment/moment-timezone/pull/403)
+
+### `0.5.6` _2016-10-08_
+* Updated data to IANA TZDB `2016g`. [#394](https://github.com/moment/moment-timezone/pull/394)
+
+### `0.5.5` _2016-07-24_
+* Updated data to IANA TZDB `2016f`. [#360](https://github.com/moment/moment-timezone/pull/360)
+
+### `0.5.4` _2016-05-03_
+* Updated data to IANA TZDB `2016d`. [#336](https://github.com/moment/moment-timezone/pull/336)
+* Ignore the results from `Intl.DateTimeFormat().resolvedOptions().timeZone` if it is undefined. [#322](https://github.com/moment/moment-timezone/pull/322)
+
 ### `0.5.3` _2016-03-24_
 * Updated data to IANA TZDB `2016c`. [#321](https://github.com/moment/moment-timezone/pull/321)
 
