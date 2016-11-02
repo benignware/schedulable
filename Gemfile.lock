@@ -1,11 +1,4 @@
 GIT
-  remote: git://github.com/benignware/date_picker.git
-  revision: 97dbd26d23f56bded7c2b161301db4cfcee0907d
-  specs:
-    date_picker (0.0.9)
-      rails (>= 4.0.3)
-
-GIT
   remote: git://github.com/joelmeyerhamme/ice_cube.git
   revision: d8709623b31fc6d4bb0e881dcbcb36883b18d6f5
   ref: d870962
@@ -19,6 +12,12 @@ GIT
   specs:
     turbolinks (3.0.0)
       coffee-rails
+
+PATH
+  remote: ../date_picker
+  specs:
+    date_picker (0.0.9)
+      rails (>= 4.0.3)
 
 PATH
   remote: .

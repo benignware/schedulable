@@ -7,8 +7,11 @@ module Schedulable
 
       belongs_to :schedulable, polymorphic: true
 
-      after_initialize :update_schedule
+      after_initialize :init_schedule
+      after_save :init_schedule
+      
       before_save :update_schedule
+      before_update :update_schedule
 
       validates_presence_of :rule
       validates_presence_of :time
@@ -24,8 +27,18 @@ module Schedulable
         message = ""
         if self.rule == 'singular'
           # Return formatted datetime for singular rules
-          datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec, time.zone)
-          message = I18n.localize(datetime)
+          d = DateTime.now
+          date = self.date
+          time = self.time
+          time_zone = self.respond_to?('time_zone') ? self.send('time_zone') : Time.zone.now.zone.to_s
+          if time
+            puts 'time_zone: ' + self.time_zone + " --- " + time_zone
+          
+            datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec, time_zone)
+            puts "****" + datetime.to_s + " ---- " + d.zone.to_s
+            message = I18n.localize(datetime)
+          end
+          
         else
           # For other rules, refer to icecube
           begin
@@ -49,27 +62,66 @@ module Schedulable
       def self.param_names
         [:id, :date, :time, :rule, :until, :count, :interval, day: [], day_of_week: [monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []]]
       end
+      
+      def update_schedule
+        puts "UPDATE SCHEDULE"
+        if self.respond_to?('time_zone') 
+          puts 'SAVE TIME ZONE' + Time.zone.now.zone
+          self.time_zone = Time.zone.now.zone
+        end
+        date = self.date
+        time = read_attribute(:time)
+        datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec, Time.zone.now.zone)
+        puts "SAVE TIME: " + time.to_s + " ----> " + datetime.to_time.utc.to_s
+        write_attribute(:time, datetime.to_time.utc)
+      end
+      
+      def time(time = nil)
+        if (time != nil)
+          puts "WRITE ATTRIBUTE"
+          write_attribute(:time, time)
+          return
+        end
+        puts "READ ATTRIBUTE"
+        time_zone = self.respond_to?('time_zone') ? self.send('time_zone') : Time.zone.now.zone
+        saved_time = read_attribute(:time)
+        if saved_time != nil
+          tz_time = saved_time.in_time_zone(Time.zone)
+          #tz_time = tz_time
+          #datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec, time_zone)
+          puts 'tz_time: ' + saved_time.to_s + " --- " + tz_time.to_s
+          puts "@time: " + self.send('time_zone').to_s
+          parsed_time = Time.parse(tz_time.strftime("%I:%M %p"))
+          puts "parsed_time: " + parsed_time.to_s
+          return parsed_time
+        end
+        time
+      end
 
-      def update_schedule()
+      def init_schedule()
 
         self.rule||= "singular"
         self.interval||= 1
         self.count||= 0
-
+        
+        db_time = read_attribute(:time)
+        
         time = Date.today.to_time(:utc)
         if self.time.present?
-          time = time + self.time.seconds_since_midnight.seconds
+          time = time + db_time.seconds_since_midnight.seconds
         end
-        time_string = time.strftime("%d-%m-%Y %I:%M %p")
-        time = Time.zone.parse(time_string)
-
+        #time_string = time.strftime("%d-%m-%Y %I:%M %p")
+        #time = Time.zone.parse(time_string)
+        
+        puts '***** INIT SCHEDULE'
+        
         @schedule = IceCube::Schedule.new(time)
 
         if self.rule && self.rule != 'singular'
 
-          self.interval = self.interval.present? ? self.interval.to_i : 1
+          interval = self.interval.present? ? self.interval.to_i : 1
 
-          rule = IceCube::Rule.send("#{self.rule}", self.interval)
+          rule = IceCube::Rule.send("#{self.rule}", interval)
 
           if self.until
             rule.until(self.until)

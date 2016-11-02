@@ -109,11 +109,18 @@ module Schedulable
                 end
               else
                 # Get Singular occurrence
-                d = schedule.date
-                t = schedule.time
-                dt = d + t.seconds_since_midnight.seconds   
-                singular_date_time = (d + t.seconds_since_midnight.seconds).to_datetime
-                occurrences = [singular_date_time]
+                date = schedule.date
+                time = schedule.time
+                puts "CNVERT: " + date.to_s + ", " + time.to_s
+                datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec, Time.zone.now.zone)
+                #datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec)
+                time_zone = schedule.respond_to?(:time_zone) ? schedule.time_zone : Time.zone.now.zone.to_s
+                puts 'time_zone: ' + time_zone.to_s
+                puts 'schedule time_zone: ' + schedule.time_zone.to_s
+                #datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec, 'Etc/UTC')
+                #datetime = (date + time.seconds_since_midnight.seconds).to_datetime
+                puts "RESULT " + datetime.to_s
+                occurrences = [datetime]
               end
   
               # Build occurrences
@@ -126,6 +133,8 @@ module Schedulable
               
               # Get existing remaining records
               occurrences_records = schedulable.send("remaining_#{occurrences_association}")
+              
+              puts '---->' + occurrences.to_s
   
               # build occurrences
               existing_record = nil
@@ -151,6 +160,7 @@ module Schedulable
                   end
                 else
                   # Create new record
+                  puts 'INSERT: ' + occurrence.to_s + " --- " + occurrence.to_datetime.to_s
                   if !occurrences_records.create(date: occurrence.to_datetime)
                     puts 'An error occurred while creating an occurrence record'
                   end
@@ -170,12 +180,10 @@ module Schedulable
                   record_count = record_count + 1
                 end
               end
-              
             end
           end
         end
       end
-  
     end
     
     def self.occurrences_associations_for(clazz)

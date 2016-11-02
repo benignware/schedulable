@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150408191241) do
+ActiveRecord::Schema.define(version: 20161102141756) do
 
   create_table "event_occurrences", force: :cascade do |t|
     t.datetime "date"
@@ -42,6 +42,14 @@ ActiveRecord::Schema.define(version: 20150408191241) do
     t.integer  "count"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "time_zone"
+  end
+
+  create_table "test_events", force: :cascade do |t|
+    t.date     "date"
+    t.time     "time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

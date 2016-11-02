@@ -61,9 +61,9 @@ export function cloneWithOffset(input, model) {
     var res, diff;
     if (model._isUTC) {
         res = model.clone();
-        diff = (isMoment(input) || isDate(input) ? +input : +createLocal(input)) - (+res);
+        diff = (isMoment(input) || isDate(input) ? input.valueOf() : createLocal(input).valueOf()) - res.valueOf();
         // Use low-level api, because this fn is low-level api.
-        res._d.setTime(+res._d + diff);
+        res._d.setTime(res._d.valueOf() + diff);
         hooks.updateOffset(res, false);
         return res;
     } else {
@@ -164,7 +164,13 @@ export function setOffsetToParsedOffset () {
     if (this._tzm) {
         this.utcOffset(this._tzm);
     } else if (typeof this._i === 'string') {
-        this.utcOffset(offsetFromString(matchOffset, this._i));
+        var tZone = offsetFromString(matchOffset, this._i);
+
+        if (tZone === 0) {
+            this.utcOffset(0, true);
+        } else {
+            this.utcOffset(offsetFromString(matchOffset, this._i));
+        }
     }
     return this;
 }

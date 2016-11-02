@@ -16,7 +16,8 @@ gemspec
 gem 'ice_cube', git: 'git://github.com/joelmeyerhamme/ice_cube.git', branch: 'international', ref: 'd870962' 
 gem 'simple_form'
 gem 'rails-i18n', '~> 4.0.0' # For 4.0.x
-gem "date_picker", github: 'benignware/date_picker'
+gem "date_picker", path: '../date_picker'
+#github: 'benignware/date_picker'
 gem 'database_cleaner'
 gem 'sqlite3'
 gem 'factory_girl_rails', "~> 4.0"
