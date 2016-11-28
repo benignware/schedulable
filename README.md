@@ -34,7 +34,7 @@ class Event < ActiveRecord::Base
   acts_as_schedulable :schedule
 end
 ```
-This will add an association to the model named 'schedule' which holds the schedule information. 
+This will add an association to the model named 'schedule' which holds the schedule information.  Make sure you restart your Rails server after making the changes above or your application will not pick up the acts_as_schedulable method.
 
 ### Schedule Model
 The schedule-object respects the following attributes.
