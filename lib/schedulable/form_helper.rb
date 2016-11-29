@@ -124,8 +124,8 @@ module Schedulable
             
             
             # Date Select
-            @template.content_tag("div", style_options[:field_html].merge({data: {group: 'singular'}})) do
-              content_wrap(@template, f.label(:date, style_options[:label_html]), style_options[:label_wrapper]) <<
+            @template.content_tag("div", style_options[:field_html].merge({data: {group: input_options[:from] ? 'singular,daily,weekly,monthly' : 'singular'}})) do
+              content_wrap(@template, f.label(:date, style_options[:label_html].merge({ data: {group: 'singular'}})) << f.label(:start_date, style_options[:label_html].merge({ data: {group: 'daily,weekly,monthly'}})), style_options[:label_wrapper]) <<
               content_wrap(@template, f.send(input_types[:date].to_sym, *[:date].concat(f.method(input_types[:date].to_sym).parameters.count >= 3 ? [date_options] : []).concat([style_options[:date_select_html].clone])), style_options[:date_select_wrapper])
             end << 
             
