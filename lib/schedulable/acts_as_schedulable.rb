@@ -49,7 +49,7 @@ module Schedulable
           
           ActsAsSchedulable.add_occurrences_association(self, occurrences_association)
           
-          after_save "build_#{occurrences_association}"
+          after_save :"build_#{occurrences_association}"
  
           self.class.instance_eval do
             define_method("build_#{occurrences_association}") do 
