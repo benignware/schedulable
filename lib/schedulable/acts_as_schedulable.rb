@@ -156,7 +156,7 @@ module Schedulable
                       puts 'An error occurred while creating an occurrence record'
                     end
                   end
-                rescue ActiveRecord::RecordNotUnique
+                rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordNotFound => ex
                   # Ignore it
                   # next
                 rescue Exception => ex
