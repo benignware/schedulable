@@ -141,20 +141,27 @@ module Schedulable
                 else
                   existing_records = []
                 end
-  
-                if existing_records.any?
-                  # Overwrite existing records
-                  existing_records.each do |existing_record|
-                    if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
-                      puts 'An error occurred while saving an existing occurrence record'
+                
+                begin
+                  if existing_records.any?
+                    # Overwrite existing records
+                    existing_records.each do |existing_record|
+                      if !occurrences_records.update(existing_record.id, date: occurrence.to_datetime)
+                        puts 'An error occurred while saving an existing occurrence record'
+                      end
+                    end
+                  else
+                    # Create new record
+                    if !occurrences_records.create(date: occurrence.to_datetime)
+                      puts 'An error occurred while creating an occurrence record'
                     end
                   end
-                else
-                  # Create new record
-                  if !occurrences_records.create(date: occurrence.to_datetime)
-                    puts 'An error occurred while creating an occurrence record'
-                  end
-                end
+                rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordNotFound => ex
+                  # Ignore it
+                  # next
+                rescue Exception => ex
+                  raise ex
+                end                
               end
               
               
