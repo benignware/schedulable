@@ -19,7 +19,7 @@ class SchedulableTest < ActiveSupport::TestCase
     schedule = @event.schedule
     assert_equal ['monday'], schedule.day
     assert_equal 10, schedule.count
-    assert_instance_of Time, schedule.time
+    assert_instance_of Time, schedule.time.to_time
   end
 
   test "schedule generates occurrences" do

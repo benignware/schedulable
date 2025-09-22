@@ -5,6 +5,7 @@ require 'schedulable/schedule'
 require 'schedulable/schedule_support'
 require 'schedulable/form_helper'
 require 'i18n'
+require 'yaml'
 
 module Schedulable
 

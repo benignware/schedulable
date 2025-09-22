@@ -9,6 +9,17 @@ master
 #### Enhancements
 * Added option `input_types` for integrating custom form controls
 
+v1.1.0
+------
+
+#### Enhancements
+* Rails 7.2 compatibility updates (ActiveRecord concern load via Railtie)
+* Use YAML coder for serialized attributes
+
+#### Maintenance
+* Bump required Ruby to >= 3.0
+* Set Rails dependency to >= 7.2
+
 #### Bugfix
 
 * Fix max_build_count-option should be ignored when set to zero

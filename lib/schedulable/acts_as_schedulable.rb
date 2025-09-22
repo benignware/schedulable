@@ -9,8 +9,11 @@ module Schedulable
    
     module ClassMethods
       
-      def acts_as_schedulable(name = :schedule, options = {})
+      def acts_as_schedulable(name = :schedule, *args, **kwargs)
         name = name.to_sym
+        options = {}
+        options = args.last if args.last.is_a?(Hash)
+        options = options.merge(kwargs) if kwargs.any?
         
         has_one name,
                 -> { where(schedulable_type: base_class.name) },
@@ -36,7 +39,7 @@ module Schedulable
           
           has_many occurrences_association,
                    -> { where(schedulable_type: base_class.name) },
-                   occurrences_options
+                   **occurrences_options
           
           # table_name
           occurrences_table_name = occurrences_association.to_s.tableize
@@ -46,18 +49,18 @@ module Schedulable
           remaining_occurrences_association = ("remaining_" << occurrences_association.to_s).to_sym
           has_many remaining_occurrences_association,
                    -> { where("#{occurrences_table_name}.date >= ? AND schedulable_type = ?", Time.current, base_class.name).order('date ASC') },
-                   remaining_occurrences_options
+                   **remaining_occurrences_options
           
           # previous
           previous_occurrences_options = occurrences_options.clone
           previous_occurrences_association = ("previous_" << occurrences_association.to_s).to_sym
           has_many previous_occurrences_association,
                    -> { where("#{occurrences_table_name}.date < ? AND schedulable_type = ?", Time.current, base_class.name).order('date DESC')},
-                   previous_occurrences_options
+                   **previous_occurrences_options
           
           ActsAsSchedulable.add_occurrences_association(self, occurrences_association)
           
-          after_save "build_#{occurrences_association}"
+          after_save :"build_#{occurrences_association}"
  
           singleton_class.define_method("build_#{occurrences_association}") do 
             # build occurrences for all events
@@ -86,7 +89,9 @@ module Schedulable
               max_period = Schedulable.config.max_build_period || 1.year
               max_date = now + max_period
               
-              max_date = terminating ? [max_date, schedule.last.to_time].min : max_date
+              if terminating && schedule.last.respond_to?(:to_time)
+                max_date = [max_date, schedule.last.to_time].min
+              end
               
               max_count = Schedulable.config.max_build_count || 100
               max_count = terminating && schedule.remaining_occurrences.any? ? [max_count, schedule.remaining_occurrences.count].min : max_count
@@ -181,4 +186,3 @@ module Schedulable
   end
 end
 
-ActiveRecord::Base.include Schedulable::ActsAsSchedulable

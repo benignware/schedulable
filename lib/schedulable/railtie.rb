@@ -30,6 +30,13 @@ module Schedulable
         include Schedulable::FormHelper
       end
     end
+
+    # Ensure ActiveRecord is loaded before including our concern
+    initializer "schedulable.active_record" do
+      ActiveSupport.on_load :active_record do
+        ActiveRecord::Base.include Schedulable::ActsAsSchedulable
+      end
+    end
     
     initializer "schedulable.locales" do
       

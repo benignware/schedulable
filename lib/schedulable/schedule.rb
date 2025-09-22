@@ -9,7 +9,7 @@ module Schedulable
 
       belongs_to :schedulable, polymorphic: true
 
-      after_initialize :update_schedule
+      after_initialize :set_defaults, :update_schedule
       before_save :update_schedule
 
       validates :rule, presence: true
@@ -19,6 +19,18 @@ module Schedulable
       validate :validate_day_of_week, if: -> { rule == 'monthly' }
 
       delegate_missing_to :@schedule, allow_nil: true
+
+      # Normalize AR time values to core Time for compatibility with existing tests
+      def time
+        value = super()
+        return value if value.is_a?(Time) || value.nil?
+        # ActiveRecord maps time columns to ActiveSupport::TimeWithZone
+        if value.respond_to?(:in_time_zone)
+          t = value.in_time_zone
+          return Time.local(t.year, t.month, t.day, t.hour, t.min, t.sec)
+        end
+        value
+      end
 
       def to_icecube
         @schedule
@@ -48,27 +60,60 @@ module Schedulable
       private
 
       def update_schedule
-        if rule && date && time
+        # Build ice_cube schedule for singular rules when date and time exist,
+        # and for recurring rules when at least time exists (use today's date as base)
+        if rule && time && (date.present? || rule != 'singular')
           # Get schedule-object
-          @schedule = IceCube::Schedule.new(date.to_datetime + time.seconds_since_midnight.seconds)
+          base_date = (date || Date.current)
+          base_time = if defined?(Time.zone) && Time.zone
+            Time.zone.local(base_date.year, base_date.month, base_date.day, time.hour, time.min, time.sec)
+          else
+            Time.local(base_date.year, base_date.month, base_date.day, time.hour, time.min, time.sec)
+          end
+          @schedule = IceCube::Schedule.new(base_time)
 
           case rule
           when 'singular'
             # No recurrence rule
           when 'weekly'
             days = day.map(&:to_sym) if day
-            @schedule.add_recurrence_rule(IceCube::Rule.weekly(interval).day(*days)) if days
+            recurrence_interval = (interval.presence || 1).to_i
+            rule = IceCube::Rule.weekly(recurrence_interval)
+            rule = rule.day(*days) if days
+            if self.until.present?
+              rule = rule.until(self.until.to_time)
+            elsif count.present?
+              rule = rule.count(count.to_i)
+            end
+            @schedule.add_recurrence_rule(rule)
           when 'monthly'
-            days = day_of_week.map do |weekday, week_numbers|
-              week_numbers.map do |week_number|
-                IceCube::Rule.monthly(interval).day_of_week(weekday.to_sym => [week_number])
+            # Expect a hash like { monday: [1,3], wednesday: [2,4] }
+            if day_of_week.present?
+              recurrence_interval = (interval.presence || 1).to_i
+              weekday_map = day_of_week.each_with_object({}) do |(weekday, week_numbers), acc|
+                acc[weekday.to_sym] = Array(week_numbers).map(&:to_i)
               end
-            end.flatten
-            @schedule.add_recurrence_rule(IceCube::Rule.monthly(interval).day_of_week(days)) if days
+              rule = IceCube::Rule.monthly(recurrence_interval).day_of_week(weekday_map)
+              if self.until.present?
+                rule = rule.until(self.until.to_time)
+              elsif count.present?
+                rule = rule.count(count.to_i)
+              end
+              @schedule.add_recurrence_rule(rule)
+            end
           end
 
-          # Add exceptions
-          @schedule.add_exception_time(date.to_datetime + time.seconds_since_midnight.seconds) if rule != 'singular'
+          # Add exception for the seed datetime only when an explicit date is provided
+          if rule != 'singular' && date.present?
+            @schedule.add_exception_time(date.to_datetime + time.seconds_since_midnight.seconds)
+          end
+        end
+      end
+
+      def set_defaults
+        # Ensure sensible default for interval on recurring rules
+        if rule.present? && rule != 'singular'
+          self.interval = 1 if interval.blank?
         end
       end
 
