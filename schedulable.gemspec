@@ -12,12 +12,18 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/benignware"
   s.summary     = "Handling recurring events in rails."
   s.description = "Handling recurring events in rails."
+  s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency "rails", ">= 4.0.3"
-  s.add_dependency "ice_cube"
-  
-  
+  s.required_ruby_version = '>= 3.0.0'
 
+  s.add_dependency "rails", ">= 7.2.0"
+  s.add_dependency "ice_cube", "~> 0.17.0"
+  
+  s.add_development_dependency "sqlite3", "~> 1.6"
+  s.add_development_dependency "rspec-rails", "~> 6.0"
+  s.add_development_dependency "factory_bot_rails", "~> 6.2"
+  s.add_development_dependency "database_cleaner-active_record", "~> 2.1"
+  s.add_development_dependency "mutex_m", "~> 0.2.0"
 end

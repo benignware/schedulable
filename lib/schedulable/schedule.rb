@@ -1,122 +1,130 @@
 module Schedulable
   module Model
-    class Schedule  < ActiveRecord::Base
+    class Schedule < ActiveRecord::Base
+      self.table_name = 'schedules'
 
-      serialize :day
-      serialize :day_of_week, Hash
+      # Use Rails 7.2+ serialization
+      serialize :day, coder: YAML
+      serialize :day_of_week, coder: YAML
 
       belongs_to :schedulable, polymorphic: true
 
-      after_initialize :update_schedule
+      after_initialize :set_defaults, :update_schedule
       before_save :update_schedule
 
-      validates_presence_of :rule
-      validates_presence_of :time
-      validates_presence_of :date, if: Proc.new { |schedule| schedule.rule == 'singular' }
-      validate :validate_day, if: Proc.new { |schedule| schedule.rule == 'weekly' }
-      validate :validate_day_of_week, if: Proc.new { |schedule| schedule.rule == 'monthly' }
+      validates :rule, presence: true
+      validates :time, presence: true
+      validates :date, presence: true, if: -> { rule == 'singular' }
+      validate :validate_day, if: -> { rule == 'weekly' }
+      validate :validate_day_of_week, if: -> { rule == 'monthly' }
+
+      delegate_missing_to :@schedule, allow_nil: true
+
+      # Normalize AR time values to core Time for compatibility with existing tests
+      def time
+        value = super()
+        return value if value.is_a?(Time) || value.nil?
+        # ActiveRecord maps time columns to ActiveSupport::TimeWithZone
+        if value.respond_to?(:in_time_zone)
+          t = value.in_time_zone
+          return Time.local(t.year, t.month, t.day, t.hour, t.min, t.sec)
+        end
+        value
+      end
 
       def to_icecube
-        return @schedule
+        @schedule
       end
 
       def to_s
-        message = ""
-        if self.rule == 'singular'
+        if rule == 'singular'
           # Return formatted datetime for singular rules
-          datetime = DateTime.new(date.year, date.month, date.day, time.hour, time.min, time.sec, time.zone)
-          message = I18n.localize(datetime)
+          datetime = date.to_datetime + time.seconds_since_midnight.seconds
+          I18n.localize(datetime, format: :long)
         else
-          # For other rules, refer to icecube
-          begin
-            message = @schedule.to_s
-          rescue Exception
-            locale = I18n.locale
-            I18n.locale = :en
-            message = @schedule.to_s
-            I18n.locale = locale
-          end
-        end
-        return message
-      end
-
-      def method_missing(meth, *args, &block)
-        if @schedule.present? && @schedule.respond_to?(meth)
-          @schedule.send(meth, *args, &block)
+          # Return formatted schedule for recurring rules
+          to_icecube.to_s
         end
       end
 
       def self.param_names
-        [:id, :date, :time, :rule, :until, :count, :interval, day: [], day_of_week: [monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []]]
-      end
-
-      def update_schedule()
-
-        self.rule||= "singular"
-        self.interval||= 1
-        self.count||= 0
-
-        time = Date.today.to_time(:utc)
-        if self.time.present?
-          time = time + self.time.seconds_since_midnight.seconds
-        end
-        time_string = time.strftime("%d-%m-%Y %I:%M %p")
-        time = Time.zone.parse(time_string)
-
-        @schedule = IceCube::Schedule.new(time)
-
-        if self.rule && self.rule != 'singular'
-
-          self.interval = self.interval.present? ? self.interval.to_i : 1
-
-          rule = IceCube::Rule.send("#{self.rule}", self.interval)
-
-          if self.until
-            rule.until(self.until)
-          end
-
-          if self.count && self.count.to_i > 0
-            rule.count(self.count.to_i)
-          end
-
-          if self.day
-            days = self.day.reject(&:empty?)
-            if self.rule == 'weekly'
-              days.each do |day|
-                rule.day(day.to_sym)
-              end
-            elsif self.rule == 'monthly'
-              days = {}
-              day_of_week.each do |weekday, value|
-                days[weekday.to_sym] = value.reject(&:empty?).map { |x| x.to_i }
-              end
-              rule.day_of_week(days)
-            end
-          end
-          @schedule.add_recurrence_rule(rule)
-        end
-
+        [
+          :id, :date, :time, :time_end, :rule, :until, :count, :interval,
+          { day: [], day_of_week: { 
+            monday: [], tuesday: [], wednesday: [], 
+            thursday: [], friday: [], saturday: [], sunday: [] 
+          }}
+        ]
       end
 
       private
 
+      def update_schedule
+        # Build ice_cube schedule for singular rules when date and time exist,
+        # and for recurring rules when at least time exists (use today's date as base)
+        if rule && time && (date.present? || rule != 'singular')
+          # Get schedule-object
+          base_date = (date || Date.current)
+          base_time = if defined?(Time.zone) && Time.zone
+            Time.zone.local(base_date.year, base_date.month, base_date.day, time.hour, time.min, time.sec)
+          else
+            Time.local(base_date.year, base_date.month, base_date.day, time.hour, time.min, time.sec)
+          end
+          @schedule = IceCube::Schedule.new(base_time)
+
+          case rule
+          when 'singular'
+            # No recurrence rule
+          when 'weekly'
+            days = day.map(&:to_sym) if day
+            recurrence_interval = (interval.presence || 1).to_i
+            rule = IceCube::Rule.weekly(recurrence_interval)
+            rule = rule.day(*days) if days
+            if self.until.present?
+              rule = rule.until(self.until.to_time)
+            elsif count.present?
+              rule = rule.count(count.to_i)
+            end
+            @schedule.add_recurrence_rule(rule)
+          when 'monthly'
+            # Expect a hash like { monday: [1,3], wednesday: [2,4] }
+            if day_of_week.present?
+              recurrence_interval = (interval.presence || 1).to_i
+              weekday_map = day_of_week.each_with_object({}) do |(weekday, week_numbers), acc|
+                acc[weekday.to_sym] = Array(week_numbers).map(&:to_i)
+              end
+              rule = IceCube::Rule.monthly(recurrence_interval).day_of_week(weekday_map)
+              if self.until.present?
+                rule = rule.until(self.until.to_time)
+              elsif count.present?
+                rule = rule.count(count.to_i)
+              end
+              @schedule.add_recurrence_rule(rule)
+            end
+          end
+
+          # Add exception for the seed datetime only when an explicit date is provided
+          if rule != 'singular' && date.present?
+            @schedule.add_exception_time(date.to_datetime + time.seconds_since_midnight.seconds)
+          end
+        end
+      end
+
+      def set_defaults
+        # Ensure sensible default for interval on recurring rules
+        if rule.present? && rule != 'singular'
+          self.interval = 1 if interval.blank?
+        end
+      end
+
       def validate_day
-        day.reject! { |c| c.empty? }
-        if !day.any?
+        if rule == 'weekly' && day.empty?
           errors.add(:day, :empty)
         end
       end
 
       def validate_day_of_week
-        any = false
-        day_of_week.each { |key, value|
-          value.reject! { |c| c.empty? }
-          if value.length > 0
-            any = true
-            break
-          end
-        }
-        if !any
+        if rule == 'monthly' && day_of_week.empty?
           errors.add(:day_of_week, :empty)
         end
       end

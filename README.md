@@ -407,3 +407,8 @@ end
 
 ## Changelog
 See the [Changelog](CHANGELOG.md) for recent enhancements, bugfixes and deprecations.
+
+## Compatibility
+
+- Rails >= 7.2
+- Ruby >= 3.0 (tested on 3.4.1)

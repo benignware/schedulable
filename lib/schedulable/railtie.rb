@@ -5,8 +5,8 @@ module Schedulable
     
     railtie_name :schedulable
     
-    # requires all dependencies
-    Gem.loaded_specs['schedulable'].dependencies.each do |d|
+    # requires only runtime dependencies
+    Gem.loaded_specs['schedulable'].runtime_dependencies.each do |d|
      require d.name
     end
     
@@ -28,6 +28,13 @@ module Schedulable
     initializer "schedulable.view" do
       ActiveSupport.on_load :action_view do
         include Schedulable::FormHelper
+      end
+    end
+
+    # Ensure ActiveRecord is loaded before including our concern
+    initializer "schedulable.active_record" do
+      ActiveSupport.on_load :active_record do
+        ActiveRecord::Base.include Schedulable::ActsAsSchedulable
       end
     end
     
